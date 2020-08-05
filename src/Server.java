@@ -19,7 +19,9 @@ public class Server {
 		
 		System.out.println("Client Connected!");
 		
-		System.out.println("Data From Client: " + recieveData(clientSocket));
+		//System.out.println("Data From Client: " + recieveData(clientSocket));
+		Thread thread = new Thread(recieveData(clientSocket));
+		thread.start();
 		sendData(clientSocket, "Potatoes are awesomee, I agreee");
 		
 		serverSocket.close();
@@ -58,7 +60,9 @@ public class Server {
 		while ((red = clientSocket.getInputStream().read(buffer)) > -1) {
 			redData = new byte[red];
 			System.arraycopy(buffer, 0, redData, 0, red);
+			
 			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
+			System.out.println("redDataText");
 			clientData.append(redDataText);
 		}
 		
