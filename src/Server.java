@@ -32,6 +32,7 @@ public class Server {
 		System.out.println("Sending message");
 		PrintWriter writer = new PrintWriter(clientSocket.getOutputStream());
 		writer.println(data.getBytes("UTF-8"));
+		System.out.println(data.getBytes("UTF-8"));
 		writer.flush();
 		System.out.println("Message has been sent!");
 	}
