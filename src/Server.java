@@ -10,14 +10,16 @@ public class Server {
 	public static void main(String[] args) throws IOException {
 		
 		ServerSocket serverSocket = new ServerSocket(5014);
+		System.out.println("Server is listening on port: " + serverSocket.getLocalPort());
+		
+		// Acceps any connections
 		Socket clientSocket = serverSocket.accept();
-		System.out.println(serverSocket.toString());
-		System.out.println(clientSocket.getRemoteSocketAddress());
+		System.out.println("Client Connected From" + clientSocket.getRemoteSocketAddress());
 		
 		System.out.println("Client Connected!");
 		
-		System.out.println("Data From Client :" + RecieveData(clientSocket));
-		SendData(clientSocket, "Potatoes are awesomee, I agreee");
+		//System.out.println("Data From Client :" + RecieveData(clientSocket));
+		//SendData(clientSocket, "Potatoes are awesomee, I agreee");
 		
 		serverSocket.close();
 		clientSocket.close();
