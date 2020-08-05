@@ -36,18 +36,8 @@ public class Server {
 
 			thread.start();
 			clients.add(cl);
-
-			deleteInactiveClients();
 		}
 
-	}
-
-	private static void deleteInactiveClients() {
-		for (ClientHandler c : clients) {
-			if (c.s.isClosed() || !c.s.isConnected()) {
-				clients.remove(c);
-			}
-		}
 	}
 
 	private void shutDown() {
@@ -80,6 +70,7 @@ class ClientHandler extends Thread {
 
 		while (!s.isClosed() && s.isConnected()) {
 			try {
+				deleteInactiveClients();
 				if (s.getReceiveBufferSize() > -1) {
 					System.out.println("Client: " + s.toString() + " sent this data: " + recieveData());
 				}
@@ -102,6 +93,14 @@ class ClientHandler extends Thread {
 			e.printStackTrace();
 		}
 	}
+	
+	private void deleteInactiveClients() {
+		for (ClientHandler c : Server.clients) {
+			if (c.s.isClosed() || !c.s.isConnected()) {
+				Server.clients.remove(c);
+			}
+		}
+	}
 
 	public void sendData(String data) throws IOException {
 		System.out.println("Sending data");
@@ -118,7 +117,7 @@ class ClientHandler extends Thread {
 		StringBuilder result = new StringBuilder();
 		while ((inputLine = bf.readLine()) != null) {
 			result.append(inputLine);
-			if (inputLine.contains("~")) {
+			if (result.indexOf("`") == result.length()) {
 				break;
 			}
 		}
