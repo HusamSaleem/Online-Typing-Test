@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
@@ -15,24 +16,37 @@ public class Server {
 		
 		System.out.println("Client Connected!");
 		
-		int red = -1;
-		byte[] buffer = new byte[5*1024]; // a read buffer of 5KiB
-		byte[] redData;
-		StringBuilder clientData = new StringBuilder();
-		String redDataText;
-		while ((red = clientSocket.getInputStream().read(buffer)) > -1) {
-		    redData = new byte[red];
-		    System.arraycopy(buffer, 0, redData, 0, red);
-		    redDataText = new String(redData,"UTF-8"); // assumption that client sends data UTF-8 encoded
-		    System.out.println("message part recieved:" + redDataText); 
-		    clientData.append(redDataText);
-		}
-		System.out.println("Data From Client :" + clientData.toString());
-		
-		clientSocket.sendUrgentData(-1);
+		System.out.println("Data From Client :" + RecieveData(clientSocket));
+		SendData(clientSocket, "Potatoes are awesomee, I agreee");
 		
 		serverSocket.close();
 		clientSocket.close();
+	}
+	
+	private static void SendData(Socket clientSocket, String data) throws IOException {
+		DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
+		out.writeBytes(data);
+		out.flush();
+		out.close();
+	}
+	
+	private static String RecieveData(Socket clientSocket) throws IOException {
+		int red = -1;
+		byte[] buffer = new byte[5*1024]; // A read buffer of 5 KiB
+		byte[] redData;
+		
+		StringBuilder clientData = new StringBuilder();
+		String redDataText;
+		
+		// While there is still data available
+		while ((red = clientSocket.getInputStream().read(buffer)) > -1) {
+			redData = new byte[red];
+			System.arraycopy(buffer, 0, redData, 0, red);
+			redDataText = new String(redData, "UTF-8"); // Assumming the client sends UTF-8 Enocded
+			clientData.append(redDataText);
+		}
+		
+		return clientData.toString();
 	}
 
 }
