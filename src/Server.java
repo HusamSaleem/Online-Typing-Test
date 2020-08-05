@@ -80,10 +80,10 @@ class ClientHandler extends Thread {
 			try {
 				String[] data = recieveData();
 				
-				if (!data.equals(null)) {
+				if (!data[0].equals("-1")) {
 					
-					for (String s : data)
-						System.out.println("Client: " + s.toString() + " sent this data: " + s);
+					for (String d : data)
+						System.out.println("Client: " + s.toString() + " sent this data: " + d);
 				}
 				Thread.sleep(250);
 			} catch (IOException | InterruptedException e) {
@@ -119,7 +119,7 @@ class ClientHandler extends Thread {
 		String redDataText;
 
 		if (s.getInputStream().available() <= 0) {
-			return null;
+			return new String[] {"-1"};
 		}
 		
 		// While there is still data available
