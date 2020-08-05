@@ -44,9 +44,9 @@ class ClientHandler extends Thread {
 			e.printStackTrace();
 		}
 		
-		while (s.isConnected()) {
+		while (!s.isClosed()) {
 			try {
-				System.out.println(recieveData());
+				System.out.println("Client: " + s.toString() + " sent this data: " + recieveData());
 				Thread.sleep(250);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
