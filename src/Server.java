@@ -1,4 +1,6 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -13,7 +15,10 @@ public class Server {
 		
 		System.out.println("Client Connected!");
 		
-		System.out.println(socket.getInputStream());
+		InputStreamReader in = new InputStreamReader(socket.getInputStream());
+		BufferedReader bf = new BufferedReader(in);
+		
+		System.out.println(bf.readLine());
 		socket.sendUrgentData(-1);
 		
 		serverSocket.close();
