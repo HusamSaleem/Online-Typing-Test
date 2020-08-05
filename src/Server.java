@@ -31,7 +31,7 @@ public class Server {
 	private static void sendData(Socket clientSocket, String data) throws IOException {
 		System.out.println("Sending message");
 		PrintWriter writer = new PrintWriter(clientSocket.getOutputStream());
-		writer.println(data.getBytes());
+		writer.println(data.getBytes("UTF-8"));
 		writer.flush();
 		System.out.println("Message has been sent!");
 	}
