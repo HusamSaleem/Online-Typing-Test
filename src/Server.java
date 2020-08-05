@@ -19,8 +19,8 @@ public class Server {
 		
 		System.out.println("Client Connected!");
 		
-		System.out.println("Data From Client :" + recieveData(clientSocket));
-		//SendData(clientSocket, "Potatoes are awesomee, I agreee");
+		System.out.println("Data From Client: " + recieveData(clientSocket));
+		sendData(clientSocket, "Potatoes are awesomee, I agreee");
 		
 		serverSocket.close();
 		clientSocket.close();
