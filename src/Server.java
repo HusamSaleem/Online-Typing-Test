@@ -21,8 +21,8 @@ public class Server {
 		
 		System.out.println("Client Connected!");
 		
-		recieveData(clientSocket);
 		sendData(clientSocket, "Potatoes are awesomee, I agreee");
+		recieveData(clientSocket);
 		
 		clientSocket.close();
 		serverSocket.close();
@@ -31,37 +31,32 @@ public class Server {
 	private static void sendData(Socket clientSocket, String data) throws IOException {
 		System.out.println("Sending message");
 		PrintWriter writer = new PrintWriter(clientSocket.getOutputStream());
-		writer.println(data);
+		writer.println(data.getBytes("UTF-8"));
 		writer.flush();
 		System.out.println("Message has been sent!");
 	}
 	
 	private static String recieveData(Socket clientSocket) throws IOException, InterruptedException {
-		InputStreamReader input = new InputStreamReader(clientSocket.getInputStream());
-		BufferedReader reader = new BufferedReader(input);
+		int red = -1;
+		byte[] buffer = new byte[5*1024]; // A read buffer of 5 KiB
+		byte[] redData;
 		
-		System.out.println(reader.readLine());
-		return reader.readLine();
-//		int red = -1;
-//		byte[] buffer = new byte[5*1024]; // A read buffer of 5 KiB
-//		byte[] redData;
-//		
-//		StringBuilder clientData = new StringBuilder();
-//		String redDataText;
-//		
-//		// While there is still data available
-//		while ((red = clientSocket.getInputStream().read(buffer)) > -1) {
-//			redData = new byte[red];
-//			System.arraycopy(buffer, 0, redData, 0, red);
-//			
-//			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
-//			System.out.println(redDataText);
-//			clientData.append(redDataText);
-//			
-//			Thread.sleep(350);
-//		}
-//		
-//		return clientData.toString();
+		StringBuilder clientData = new StringBuilder();
+		String redDataText;
+		
+		// While there is still data available
+		while ((red = clientSocket.getInputStream().read(buffer)) > -1) {
+			redData = new byte[red];
+			System.arraycopy(buffer, 0, redData, 0, red);
+			
+			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
+			System.out.println(redDataText);
+			clientData.append(redDataText);
+			
+			Thread.sleep(350);
+		}
+		
+		return clientData.toString();
 	}
 
 }
