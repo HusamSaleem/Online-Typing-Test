@@ -80,7 +80,9 @@ class ClientHandler extends Thread {
 
 		while (!s.isClosed() && s.isConnected()) {
 			try {
-				System.out.println("Client: " + s.toString() + " sent this data: " + recieveData());
+				if (s.getReceiveBufferSize() > -1) {
+					System.out.println("Client: " + s.toString() + " sent this data: " + recieveData());
+				}
 				Thread.sleep(250);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -116,8 +118,11 @@ class ClientHandler extends Thread {
 		StringBuilder result = new StringBuilder();
 		while ((inputLine = bf.readLine()) != null) {
 			result.append(inputLine);
+			if (inputLine.contains("~")) {
+				break;
+			}
 		}
-		
+		result.delete(result.length(), result.length());
 		return result.toString();
 
 //		int red = -1;
