@@ -127,14 +127,13 @@ class ClientHandler extends Thread {
 			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
 			
 			clientData.append(redDataText);
-			System.out.println(clientData);
 			
 			if (clientData.indexOf("`") != -1) {
 				break;
 			}
-			
-			clientData = clientData.deleteCharAt(clientData.indexOf("`"));
 		}
+		
+		clientData = clientData.deleteCharAt(clientData.indexOf("`"));
 		return clientData.toString();
 	}
 
