@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 
 public class Server {
@@ -65,6 +66,20 @@ class ClientHandler extends Thread {
 
 	public ClientHandler(Socket s) {
 		this.s = s;
+		
+		try {
+			s.setSoTimeout(5000);
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			try {
+				s.close();
+				System.out.println("Client " + s.toString() + " has disconnected");
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
 	}
 
 	@Override
@@ -76,7 +91,7 @@ class ClientHandler extends Thread {
 			e.printStackTrace();
 		}
 		
-		while (!s.isClosed() && s.isConnected() && s.isBound()) {
+		while (true) {
 			try {
 				String[] data = recieveData();
 				
@@ -85,6 +100,7 @@ class ClientHandler extends Thread {
 					for (String d : data)
 						System.out.println("Client: " + s.toString() + " sent this data: " + d);
 				}
+				
 				Thread.sleep(250);
 			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -118,6 +134,7 @@ class ClientHandler extends Thread {
 		String clientData = "";
 		String redDataText;
 
+		// If there isn't any bytes that are ready to be read, then return a -1
 		if (s.getInputStream().available() <= 0) {
 			return new String[] {"-1"};
 		}
@@ -136,9 +153,9 @@ class ClientHandler extends Thread {
 			}
 		}
 		
+		// Turn all the sent commands into an array in case if they get combined
 		String[] data = clientData.split("`");
 		clientData = clientData.replaceAll("`", "");
 		return data;
 	}
-
 }
