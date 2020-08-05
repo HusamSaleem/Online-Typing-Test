@@ -128,11 +128,12 @@ class ClientHandler extends Thread {
 			
 			clientData.append(redDataText);
 			System.out.println(clientData);
+			
 			if (clientData.indexOf("`") != -1) {
 				break;
 			}
 			
-			clientData.delete(clientData.length(), clientData.length());
+			clientData.deleteCharAt(clientData.indexOf("`"));
 		}
 		return clientData.toString();
 	}
