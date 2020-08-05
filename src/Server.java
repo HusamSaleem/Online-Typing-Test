@@ -46,7 +46,7 @@ class ClientHandler extends Thread {
 			e.printStackTrace();
 		}
 		
-		while (true) {
+		while (s.isConnected()) {
 			try {
 				System.out.println(recieveData());
 				Thread.sleep(250);
