@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 
 public class Server {
@@ -17,9 +18,9 @@ public class Server {
 				server.shutDown();
 			}
 		});
-		
-		Thread connThread = new Thread(new ClientConnectionHandler());
-		connThread.start();
+//		
+//		Thread connThread = new Thread(new ClientConnectionHandler());
+//		connThread.start();
 
 		serverSocket = new ServerSocket(5014);
 		System.out.println("Server is listening on port: " + serverSocket.getLocalPort());
@@ -91,6 +92,21 @@ class ClientHandler extends Thread {
 
 	public ClientHandler(Socket s) {
 		this.s = s;
+		
+		try {
+			s.setKeepAlive(true);
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("Client " + s.toString() + " has disconnected");
+			try {
+				s.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+		}
 		
 	}
 
