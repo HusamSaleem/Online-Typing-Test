@@ -10,7 +10,7 @@ import java.net.Socket;
 
 public class Server {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InterruptedException {
 		
 		ServerSocket serverSocket = new ServerSocket(5014);
 		System.out.println("Server is listening on port: " + serverSocket.getLocalPort());
@@ -22,10 +22,9 @@ public class Server {
 		System.out.println("Client Connected!");
 		
 		//System.out.println("Data From Client: " + recieveData(clientSocket));
-		sendData(clientSocket, "Potatoes are awesomee, I agreee");
 		Thread thread = new Thread(recieveData(clientSocket));
 		thread.start();
-
+		sendData(clientSocket, "Potatoes are awesomee, I agreee");
 		
 		clientSocket.close();
 		serverSocket.close();
@@ -39,7 +38,7 @@ public class Server {
 		System.out.println("Message has been sent!");
 	}
 	
-	private static String recieveData(Socket clientSocket) throws IOException {
+	private static String recieveData(Socket clientSocket) throws IOException, InterruptedException {
 		int red = -1;
 		byte[] buffer = new byte[5*1024]; // A read buffer of 5 KiB
 		byte[] redData;
@@ -55,6 +54,8 @@ public class Server {
 			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
 			System.out.println(redDataText);
 			clientData.append(redDataText);
+			
+			Thread.sleep(350);
 		}
 		
 		return clientData.toString();
