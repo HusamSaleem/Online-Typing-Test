@@ -3,6 +3,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -32,9 +33,10 @@ public class Server {
 	}
 	
 	private static Runnable sendData(Socket clientSocket, String data) throws IOException {
-		PrintWriter writer = new PrintWriter(clientSocket.getOutputStream());
-		writer.write(data);
+		PrintStream writer = new PrintStream(clientSocket.getOutputStream());
+		writer.println(data);
 		writer.flush();
+		writer.close();
 		return null;
 	}
 	
