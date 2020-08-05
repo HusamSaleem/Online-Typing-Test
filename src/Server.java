@@ -78,10 +78,12 @@ class ClientHandler extends Thread {
 		
 		while (!s.isClosed() && s.isConnected() && s.isBound()) {
 			try {
-				String data = recieveData();
+				String[] data = recieveData();
 				
-				if (!data.equals("-1")) {
-					System.out.println("Client: " + s.toString() + " sent this data: " + data);
+				if (!data.equals(null)) {
+					
+					for (String s : data)
+						System.out.println("Client: " + s.toString() + " sent this data: " + s);
 				}
 				Thread.sleep(250);
 			} catch (IOException | InterruptedException e) {
@@ -108,7 +110,7 @@ class ClientHandler extends Thread {
 		System.out.println("Data has been sent!");
 	}
 
-	public String recieveData() throws IOException, InterruptedException {
+	public String[] recieveData() throws IOException, InterruptedException {
 		int red = -1;
 		byte[] buffer = new byte[5 * 1024]; // A read buffer of 5 KiB
 		byte[] redData;
@@ -117,7 +119,7 @@ class ClientHandler extends Thread {
 		String redDataText;
 
 		if (s.getInputStream().available() <= 0) {
-			return "-1";
+			return null;
 		}
 		
 		// While there is still data available
@@ -134,9 +136,9 @@ class ClientHandler extends Thread {
 			}
 		}
 		
+		String[] data = clientData.split("`");
 		clientData = clientData.replaceAll("`", "");
-		//clientData = clientData.replaceAll("</>", "\n");
-		return clientData.toString();
+		return data;
 	}
 
 }
