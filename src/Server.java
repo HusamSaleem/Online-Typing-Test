@@ -25,33 +25,19 @@ public class Server {
 		Thread thread = new Thread(recieveData(clientSocket));
 		thread.start();
 		
-		Thread thread2 = new Thread(sendData(clientSocket, "Potatoes are awesomee, I agreee"));
-		thread2.start();
+		sendData(clientSocket, "Potatoes are awesomee, I agreee");
 		
-		serverSocket.close();
 		clientSocket.close();
+		serverSocket.close();
 	}
 	
-	private static Runnable sendData(Socket clientSocket, String data) throws IOException {
+	private static void sendData(Socket clientSocket, String data) throws IOException {
 		PrintStream writer = new PrintStream(clientSocket.getOutputStream());
 		writer.println(data);
 		writer.flush();
 		writer.close();
-		return null;
+		System.out.println("Message has been sent!");
 	}
-	
-//	private static String recieveData(Socket clientSocket) throws IOException {
-//		InputStreamReader clientInput = new InputStreamReader(clientSocket.getInputStream());
-//		
-//		BufferedReader bf = new BufferedReader(clientInput);
-//		
-//		String data;
-//		while ((data = bf.readLine()) != null) {
-//			data += bf.readLine();
-//		}
-//		
-//		return data;
-//	}
 	
 	private static String recieveData(Socket clientSocket) throws IOException {
 		int red = -1;
