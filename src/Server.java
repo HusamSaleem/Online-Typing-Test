@@ -15,7 +15,7 @@ public class Server {
 		
 		// Acceps any connections
 		Socket clientSocket = serverSocket.accept();
-		System.out.println("Client Connected From" + clientSocket.getRemoteSocketAddress());
+		System.out.println("Client Connected From: " + clientSocket.getRemoteSocketAddress());
 		
 		System.out.println("Client Connected!");
 		
@@ -33,36 +33,36 @@ public class Server {
 		out.close();
 	}
 	
-	private static String recieveData(Socket clientSocket) throws IOException {
-		InputStreamReader clientInput = new InputStreamReader(clientSocket.getInputStream());
-		
-		BufferedReader bf = new BufferedReader(clientInput);
-		
-		String data;
-		while ((data = bf.readLine()) != null) {
-			System.out.println(data);
-		}
-		
-		return data;
-	}
-	
-//	private static String RecieveData(Socket clientSocket) throws IOException {
-//		int red = -1;
-//		byte[] buffer = new byte[5*1024]; // A read buffer of 5 KiB
-//		byte[] redData;
+//	private static String recieveData(Socket clientSocket) throws IOException {
+//		InputStreamReader clientInput = new InputStreamReader(clientSocket.getInputStream());
 //		
-//		StringBuilder clientData = new StringBuilder();
-//		String redDataText;
+//		BufferedReader bf = new BufferedReader(clientInput);
 //		
-//		// While there is still data available
-//		while ((red = clientSocket.getInputStream().read(buffer)) > -1) {
-//			redData = new byte[red];
-//			System.arraycopy(buffer, 0, redData, 0, red);
-//			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
-//			clientData.append(redDataText);
+//		String data;
+//		while ((data = bf.readLine()) != null) {
+//			data += bf.readLine();
 //		}
 //		
-//		return clientData.toString();
+//		return data;
 //	}
+	
+	private static String recieveData(Socket clientSocket) throws IOException {
+		int red = -1;
+		byte[] buffer = new byte[5*1024]; // A read buffer of 5 KiB
+		byte[] redData;
+		
+		StringBuilder clientData = new StringBuilder();
+		String redDataText;
+		
+		// While there is still data available
+		while ((red = clientSocket.getInputStream().read(buffer)) > -1) {
+			redData = new byte[red];
+			System.arraycopy(buffer, 0, redData, 0, red);
+			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
+			clientData.append(redDataText);
+		}
+		
+		return clientData.toString();
+	}
 
 }
