@@ -1,6 +1,8 @@
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -34,12 +36,12 @@ public class Server {
 
 			thread.start();
 			clients.add(cl);
-			
+
 			deleteInactiveClients();
 		}
-		
+
 	}
-	
+
 	private static void deleteInactiveClients() {
 		for (ClientHandler c : clients) {
 			if (c.s.isClosed() || !c.s.isConnected()) {
@@ -47,7 +49,7 @@ public class Server {
 			}
 		}
 	}
-	
+
 	private void shutDown() {
 		System.out.println("Shutting down the server...");
 		try {
@@ -56,7 +58,7 @@ public class Server {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 }
 
@@ -117,23 +119,33 @@ class ClientHandler extends Thread {
 	}
 
 	public String recieveData() throws IOException, InterruptedException {
-		int red = -1;
-		byte[] buffer = new byte[5 * 1024]; // A read buffer of 5 KiB
-		byte[] redData;
 
-		StringBuilder clientData = new StringBuilder();
-		String redDataText;
-
-		// While there is still data available
-		while ((red = s.getInputStream().read(buffer)) > -1) {
-			redData = new byte[red];
-			System.arraycopy(buffer, 0, redData, 0, red);
-
-			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
-			
-			clientData.append(redDataText);
+		BufferedReader bf = new BufferedReader(new InputStreamReader(s.getInputStream()));
+		String inputLine;
+		StringBuilder result = new StringBuilder();
+		while ((inputLine = bf.readLine()) != null) {
+			result.append(inputLine);
 		}
-		return clientData.toString();
+		
+		return result.toString();
+
+//		int red = -1;
+//		byte[] buffer = new byte[5 * 1024]; // A read buffer of 5 KiB
+//		byte[] redData;
+//
+//		StringBuilder clientData = new StringBuilder();
+//		String redDataText;
+//
+//		// While there is still data available
+//		while ((red = s.getInputStream().read(buffer)) > -1) {
+//			redData = new byte[red];
+//			System.arraycopy(buffer, 0, redData, 0, red);
+//
+//			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
+//			
+//			clientData.append(redDataText);
+//		}
+//		return clientData.toString();
 	}
 
 }
