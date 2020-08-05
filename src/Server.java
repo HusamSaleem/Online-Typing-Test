@@ -1,12 +1,7 @@
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.ArrayList;
 
 public class Server {
@@ -22,6 +17,9 @@ public class Server {
 				server.shutDown();
 			}
 		});
+		
+		Thread connThread = new Thread(new ClientConnectionHandler());
+		connThread.start();
 
 		serverSocket = new ServerSocket(5014);
 		System.out.println("Server is listening on port: " + serverSocket.getLocalPort());
@@ -61,25 +59,39 @@ public class Server {
 	}
 }
 
+class ClientConnectionHandler extends Thread{
+	@Override
+	public void run() {
+		while (true) {
+			for (ClientHandler c : Server.clients) {
+				try {
+					if (!c.sendData("Connection Status Check")) {
+						System.out.println("Client " + c.toString() + " has disconnected");
+						c.s.close();
+						Server.clients.remove(c);
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			try {
+				Thread.sleep(60000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+}
+
 class ClientHandler extends Thread {
 	public final Socket s;
 
 	public ClientHandler(Socket s) {
 		this.s = s;
 		
-		try {
-			s.setSoTimeout(5000);
-		} catch (SocketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			try {
-				s.close();
-				System.out.println("Client " + s.toString() + " has disconnected");
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		}
 	}
 
 	@Override
@@ -118,12 +130,16 @@ class ClientHandler extends Thread {
 		}
 	}
 
-	public void sendData(String data) throws IOException {
+	public boolean sendData(String data) throws IOException {
 		System.out.println("Sending data");
 		PrintWriter writer = new PrintWriter(s.getOutputStream());
+		
+		if (writer.checkError())
+			return false;
 		writer.println(data);
 		writer.flush();
 		System.out.println("Data has been sent!");
+		return true;
 	}
 
 	public String[] recieveData() throws IOException, InterruptedException {
