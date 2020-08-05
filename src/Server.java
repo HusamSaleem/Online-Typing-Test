@@ -123,7 +123,7 @@ class ClientHandler extends Thread {
 		BufferedReader bf = new BufferedReader(new InputStreamReader(s.getInputStream()));
 		String inputLine;
 		StringBuilder result = new StringBuilder();
-		while ((inputLine = bf.readLine()) != null) {
+		while (!(inputLine = bf.readLine()).equals("-1")) {
 			result.append(inputLine);
 		}
 		
