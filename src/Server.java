@@ -24,8 +24,6 @@ public class Server {
 			
 			thread.start();
 			clients.add(cl);
-			
-			clients.get(0).sendData("Hi");
 		}
 	}
 }
@@ -53,10 +51,19 @@ class ClientHandler extends Thread {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				break;
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				break;
 			}
+		}
+		
+		try {
+			s.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
