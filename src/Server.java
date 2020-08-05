@@ -21,9 +21,7 @@ public class Server {
 		
 		System.out.println("Client Connected!");
 		
-		//System.out.println("Data From Client: " + recieveData(clientSocket));
-		Thread thread = new Thread(recieveData(clientSocket));
-		thread.start();
+		recieveData(clientSocket);
 		sendData(clientSocket, "Potatoes are awesomee, I agreee");
 		
 		clientSocket.close();
@@ -39,26 +37,31 @@ public class Server {
 	}
 	
 	private static String recieveData(Socket clientSocket) throws IOException, InterruptedException {
-		int red = -1;
-		byte[] buffer = new byte[5*1024]; // A read buffer of 5 KiB
-		byte[] redData;
+		InputStreamReader input = new InputStreamReader(clientSocket.getInputStream());
+		BufferedReader reader = new BufferedReader(input);
 		
-		StringBuilder clientData = new StringBuilder();
-		String redDataText;
-		
-		// While there is still data available
-		while ((red = clientSocket.getInputStream().read(buffer)) > -1) {
-			redData = new byte[red];
-			System.arraycopy(buffer, 0, redData, 0, red);
-			
-			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
-			System.out.println(redDataText);
-			clientData.append(redDataText);
-			
-			Thread.sleep(350);
-		}
-		
-		return clientData.toString();
+		System.out.println(reader.readLine());
+		return reader.readLine();
+//		int red = -1;
+//		byte[] buffer = new byte[5*1024]; // A read buffer of 5 KiB
+//		byte[] redData;
+//		
+//		StringBuilder clientData = new StringBuilder();
+//		String redDataText;
+//		
+//		// While there is still data available
+//		while ((red = clientSocket.getInputStream().read(buffer)) > -1) {
+//			redData = new byte[red];
+//			System.arraycopy(buffer, 0, redData, 0, red);
+//			
+//			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
+//			System.out.println(redDataText);
+//			clientData.append(redDataText);
+//			
+//			Thread.sleep(350);
+//		}
+//		
+//		return clientData.toString();
 	}
 
 }
