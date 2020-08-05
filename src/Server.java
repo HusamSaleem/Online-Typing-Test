@@ -121,11 +121,10 @@ class ClientHandler extends Thread {
 			System.arraycopy(buffer, 0, redData, 0, red);
 
 			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
-			clientData.append(redDataText); 
-			
 			if (redDataText.contains("`")) {
 				break;
 			}
+			clientData.append(redDataText); 
 		}
 		return clientData.toString();
 	}
