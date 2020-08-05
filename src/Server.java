@@ -32,10 +32,9 @@ public class Server {
 	}
 	
 	private static void sendData(Socket clientSocket, String data) throws IOException {
-		PrintStream writer = new PrintStream(clientSocket.getOutputStream());
+		PrintWriter writer = new PrintWriter(clientSocket.getOutputStream());
 		writer.println(data);
 		writer.flush();
-		writer.close();
 		System.out.println("Message has been sent!");
 	}
 	
