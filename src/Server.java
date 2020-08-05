@@ -22,10 +22,10 @@ public class Server {
 		System.out.println("Client Connected!");
 		
 		//System.out.println("Data From Client: " + recieveData(clientSocket));
+		sendData(clientSocket, "Potatoes are awesomee, I agreee");
 		Thread thread = new Thread(recieveData(clientSocket));
 		thread.start();
-		
-		sendData(clientSocket, "Potatoes are awesomee, I agreee");
+
 		
 		clientSocket.close();
 		serverSocket.close();
