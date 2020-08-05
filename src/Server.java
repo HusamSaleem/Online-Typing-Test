@@ -1,5 +1,6 @@
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -107,9 +108,14 @@ class ClientHandler extends Thread {
 	}
 
 	public String recieveData() throws IOException, InterruptedException {
-		DataInputStream input = new DataInputStream(s.getInputStream());
+		DataInputStream input = new DataInputStream (s.getInputStream());
 		
-		return input.readUTF();
+		int msgLen = input.readInt();
+		byte[] msg = new byte[msgLen];
+		  
+		input.readFully(msg);
+		
+		return msg.toString();
 		
 //		int red = -1;
 //		byte[] buffer = new byte[5 * 1024]; // A read buffer of 5 KiB
