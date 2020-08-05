@@ -78,7 +78,11 @@ class ClientHandler extends Thread {
 		
 		while (!s.isClosed() && s.isConnected() && s.isBound()) {
 			try {
-				System.out.println("Client: " + s.toString() + " sent this data: " + recieveData());
+				String data = recieveData();
+				
+				if (!data.equals("-1")) {
+					System.out.println("Client: " + s.toString() + " sent this data: " + data);
+				}
 				Thread.sleep(250);
 			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -111,6 +115,10 @@ class ClientHandler extends Thread {
 		StringBuilder clientData = new StringBuilder();
 		String redDataText;
 
+		if (s.getInputStream().available() <= 0) {
+			return "-1";
+		}
+		
 		// While there is still data available
 		while ((red = s.getInputStream().read(buffer)) > -1) {
 			redData = new byte[red];
