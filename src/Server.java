@@ -22,17 +22,20 @@ public class Server {
 		//System.out.println("Data From Client: " + recieveData(clientSocket));
 		Thread thread = new Thread(recieveData(clientSocket));
 		thread.start();
-		sendData(clientSocket, "Potatoes are awesomee, I agreee");
+		
+		Thread thread2 = new Thread(sendData(clientSocket, "Potatoes are awesomee, I agreee"));
+		thread2.start();
 		
 		serverSocket.close();
 		clientSocket.close();
 	}
 	
-	private static void sendData(Socket clientSocket, String data) throws IOException {
+	private static Runnable sendData(Socket clientSocket, String data) throws IOException {
 		DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
 		out.writeBytes(data);
 		out.flush();
 		out.close();
+		return null;
 	}
 	
 //	private static String recieveData(Socket clientSocket) throws IOException {
@@ -62,7 +65,7 @@ public class Server {
 			System.arraycopy(buffer, 0, redData, 0, red);
 			
 			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
-			System.out.println("redDataText");
+			System.out.println(redDataText);
 			clientData.append(redDataText);
 		}
 		
