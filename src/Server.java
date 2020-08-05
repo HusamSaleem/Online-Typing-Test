@@ -78,29 +78,20 @@ class ClientHandler extends Thread {
 			e.printStackTrace();
 		}
 
-		try {
-			System.out.println("Client: " + s.toString() + " sent this data: " + recieveData());
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		while (!s.isClosed() && s.isConnected()) {
+			try {
+				System.out.println("Client: " + s.toString() + " sent this data: " + recieveData());
+				Thread.sleep(250);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				break;
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				break;
+			}
 		}
-//		while (!s.isClosed()) {
-//			try {
-//				System.out.println("Client: " + s.toString() + " sent this data: " + recieveData());
-//				Thread.sleep(250);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//				break;
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//				break;
-//			}
-//		}
 
 		try {
 			s.close();
@@ -123,7 +114,7 @@ class ClientHandler extends Thread {
 		BufferedReader bf = new BufferedReader(new InputStreamReader(s.getInputStream()));
 		String inputLine;
 		StringBuilder result = new StringBuilder();
-		while (!(inputLine = bf.readLine()).equals("-1")) {
+		while ((inputLine = bf.readLine()) != null) {
 			result.append(inputLine);
 		}
 		
