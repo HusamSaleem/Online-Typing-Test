@@ -1,43 +1,74 @@
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class Server {
+	
+	static ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 		
 		ServerSocket serverSocket = new ServerSocket(5014);
 		System.out.println("Server is listening on port: " + serverSocket.getLocalPort());
 		
-		// Acceps any connections
-		Socket clientSocket = serverSocket.accept();
-		System.out.println("Client Connected From: " + clientSocket.getRemoteSocketAddress());
-		
-		System.out.println("Client Connected!");
-		
-		sendData(clientSocket, "Potatoes are awesomee, I agreee");
-		recieveData(clientSocket);
-		
-		clientSocket.close();
-		serverSocket.close();
+		while (true) {
+			// Accepts any connections
+			Socket clientSocket = serverSocket.accept();
+			System.out.println("Client Connected: " + clientSocket.toString());
+			
+			// Add client to existing client list
+			ClientHandler cl = new ClientHandler(clientSocket);
+			Thread thread = new Thread(cl);
+			
+			thread.start();
+			clients.add(cl);
+			
+			clients.get(0).sendData("Hi");
+		}
+	}
+}
+
+class ClientHandler extends Thread {
+	final Socket s;
+	
+	public ClientHandler(Socket s) {
+		this.s = s;
 	}
 	
-	private static void sendData(Socket clientSocket, String data) throws IOException {
-		System.out.println("Sending message");
-		PrintWriter writer = new PrintWriter(clientSocket.getOutputStream());
+	@Override
+	public void run() {
+		try {
+			sendData("Hello");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		while (true) {
+			try {
+				System.out.println(recieveData());
+				Thread.sleep(250);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void sendData(String data) throws IOException {
+		System.out.println("Sending data");
+		PrintWriter writer = new PrintWriter(s.getOutputStream());
 		writer.println(data);
-		System.out.println(data.getBytes());
 		writer.flush();
-		System.out.println("Message has been sent!");
+		System.out.println("Data has been sent!");
 	}
 	
-	private static String recieveData(Socket clientSocket) throws IOException, InterruptedException {
+	public String recieveData() throws IOException, InterruptedException {
 		int red = -1;
 		byte[] buffer = new byte[5*1024]; // A read buffer of 5 KiB
 		byte[] redData;
@@ -46,17 +77,14 @@ public class Server {
 		String redDataText;
 		
 		// While there is still data available
-		while ((red = clientSocket.getInputStream().read(buffer)) > -1) {
+		while ((red = s.getInputStream().read(buffer)) > -1) {
 			redData = new byte[red];
 			System.arraycopy(buffer, 0, redData, 0, red);
 			
 			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
 			System.out.println(redDataText);
 			clientData.append(redDataText);
-			
-			Thread.sleep(350);
 		}
-		
 		return clientData.toString();
 	}
 
