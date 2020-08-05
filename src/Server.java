@@ -76,32 +76,16 @@ class ClientHandler extends Thread {
 			e.printStackTrace();
 		}
 		
-		while (true) {
+		while (!s.isClosed() && s.isConnected() && s.isBound()) {
 			try {
 				System.out.println("Client: " + s.toString() + " sent this data: " + recieveData());
+				Thread.sleep(250);
 			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				break;
 			}
 		}
-
-//		while (!s.isClosed() && s.isConnected()) {
-//			try {
-//				if (s.getReceiveBufferSize() > -1) {
-//					System.out.println("Client: " + s.toString() + " sent this data: " + recieveData());
-//				}
-//				Thread.sleep(250);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//				break;
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//				break;
-//			}
-//		}
 
 		try {
 			s.close();
@@ -135,8 +119,8 @@ class ClientHandler extends Thread {
 			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
 			
 			clientData.append(redDataText);
-			
-			if (clientData.indexOf("`") == clientData.length()) {
+			System.out.println(clientData);
+			if (clientData.indexOf("`") != -1) {
 				break;
 			}
 			
