@@ -133,7 +133,7 @@ class ClientHandler extends Thread {
 				break;
 			}
 			
-			clientData.deleteCharAt(clientData.indexOf("`"));
+			clientData = clientData.deleteCharAt(clientData.indexOf("`"));
 		}
 		return clientData.toString();
 	}
