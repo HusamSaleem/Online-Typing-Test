@@ -93,6 +93,7 @@ class ClientHandler extends Thread {
 
 		try {
 			s.close();
+			System.out.println("Client " + s.toString() + " has disconnected");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -112,7 +113,7 @@ class ClientHandler extends Thread {
 		byte[] buffer = new byte[5 * 1024]; // A read buffer of 5 KiB
 		byte[] redData;
 
-		StringBuilder clientData = new StringBuilder();
+		String clientData = "";
 		String redDataText;
 
 		if (s.getInputStream().available() <= 0) {
@@ -126,14 +127,15 @@ class ClientHandler extends Thread {
 
 			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
 			
-			clientData.append(redDataText);
+			clientData += redDataText;
 			
 			if (clientData.indexOf("`") != -1) {
 				break;
 			}
 		}
 		
-		clientData = clientData.deleteCharAt(clientData.indexOf("`"));
+		clientData = clientData.replaceAll("`", "");
+		//clientData = clientData.replaceAll("</>", "\n");
 		return clientData.toString();
 	}
 
