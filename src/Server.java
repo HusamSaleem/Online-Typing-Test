@@ -16,11 +16,10 @@ public class Server {
 	private int proc_ID_Counter = 1;
 
 	public static ExecutorService threadPool;
-
+	
 	public Server(int port, int poolSize) throws IOException {
 		this.serverSocket = new ServerSocket(port);
 		threadPool = Executors.newFixedThreadPool(poolSize);
-
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -77,8 +76,9 @@ public class Server {
 // Makes sure that the clients are still active, if not delete them
 class PingHandler implements Runnable {
 	
-	// Miliseconds
-	private final long PING_INTERVAL = 5000;
+	// The interval for how many pings go out to clients,
+	// Miliseconds / 1000 = seconds
+	private final long PING_INTERVAL = 60000;
 	
 	@Override
 	public void run() {
@@ -113,32 +113,6 @@ class PingHandler implements Runnable {
 				}
 			}
 			
-//			for (ClientHandler client : Server.clients) {
-//				try {
-//					client.sendData("Ping!");
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//				
-//				if (System.currentTimeMillis() - client.getLastPingTime() > PING_INTERVAL) {
-//					client.increaseRetryCount();
-//					
-//					if (!client.keepAlive()) {
-//						System.out.println("Client has been removed: " + client.S.toString());
-//						
-//						try {
-//							client.S.close();
-//						} catch (IOException e) {
-//							// TODO Auto-generated catch block
-//							e.printStackTrace();
-//						}
-//						
-//						Server.clients.remove(client);
-//					}
-//					
-//				}
-//			}
-//			
 			System.out.println("Finished pinging clients...");
 			
 			try {
@@ -154,6 +128,7 @@ class PingHandler implements Runnable {
 // Listens for data from each client and processes it 
 class ThreadHandlers implements Runnable {
 
+	final int DATA_LISTEN_INTERVAL = 1000;
 	@Override
 	public void run() {
 
@@ -163,7 +138,7 @@ class ThreadHandlers implements Runnable {
 			}
 			
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(DATA_LISTEN_INTERVAL);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -184,6 +159,7 @@ class ClientHandler implements Runnable {
 	public ClientHandler(Socket S, String PROC_ID) {
 		this.S = S;
 		this.PROC_ID = PROC_ID;
+		
 		this.retryConnections = 0;
 		this.isConnected = true;
 		this.lastPinged = System.currentTimeMillis();
@@ -244,7 +220,6 @@ class ClientHandler implements Runnable {
 
 		// Turn all the sent commands into an array in case if they get combined
 		String[] data = clientData.split("`");
-		//clientData = clientData.replaceAll("`", "");
 		return data;
 	}
 	
@@ -266,7 +241,6 @@ class ClientHandler implements Runnable {
 				if (d.equals("Process_ID: " + this.PROC_ID)) {
 					this.isConnected = true;
 					this.lastPinged = System.currentTimeMillis();
-					sendData("I see you are still alive!");
 				} else if (d.equals("Process_ID: NULL")) {
 					this.lastPinged = System.currentTimeMillis();
 					sendData("Process_ID: " + this.PROC_ID);
