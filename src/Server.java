@@ -159,7 +159,12 @@ class ClientHandler implements Runnable {
 			e.printStackTrace();
 		}
 		
-		sendData("Ping!");
+		try {
+			sendData("Ping!");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
