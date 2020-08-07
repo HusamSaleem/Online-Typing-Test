@@ -161,6 +161,7 @@ class ClientHandler implements Runnable {
 		
 		try {
 			sendData("Ping!");
+			System.out.println("Send a ping :D");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -178,14 +179,13 @@ class ClientHandler implements Runnable {
 	}
 
 	public boolean sendData(String data) throws IOException {
-		PrintWriter writer = new PrintWriter(S.getOutputStream());
+		PrintWriter writer = new PrintWriter(S.getOutputStream(), true);
 
 		if (writer.checkError())
 			return false;
 		
 		// "`" means its the end of the data line
 		writer.println(data + "`");
-		//writer.flush();
 		return true;
 	}
 
