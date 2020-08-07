@@ -158,6 +158,8 @@ class ClientHandler implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		sendData("Ping!");
 	}
 
 	@Override
