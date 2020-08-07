@@ -3,6 +3,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -82,7 +83,11 @@ class PingHandler implements Runnable {
 	@Override
 	public void run() {
 		while (true) {
-			for (ClientHandler client : Server.clients) {
+			Iterator<ClientHandler> iter = Server.clients.iterator();
+			
+			while (iter.hasNext()) {
+				ClientHandler client = iter.next();
+				
 				try {
 					client.sendData("Ping!");
 				} catch (IOException e) {
@@ -102,12 +107,38 @@ class PingHandler implements Runnable {
 							e.printStackTrace();
 						}
 						
-						Server.clients.remove(client);
+						iter.remove();
 					}
 					
 				}
 			}
 			
+//			for (ClientHandler client : Server.clients) {
+//				try {
+//					client.sendData("Ping!");
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//				
+//				if (System.currentTimeMillis() - client.getLastPingTime() > PING_INTERVAL) {
+//					client.increaseRetryCount();
+//					
+//					if (!client.keepAlive()) {
+//						System.out.println("Client has been removed: " + client.S.toString());
+//						
+//						try {
+//							client.S.close();
+//						} catch (IOException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
+//						
+//						Server.clients.remove(client);
+//					}
+//					
+//				}
+//			}
+//			
 			System.out.println("Finished pinging clients...");
 			
 			try {
