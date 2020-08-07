@@ -43,7 +43,11 @@ public class Server {
 		// A thread to handle the thread pool
 		Thread thread = new Thread(new ThreadHandlers());
 		thread.start();
-
+		
+		// A thread to handle the pinging to the clients every minute or so
+		Thread thread2 = new Thread(new PingHandler());
+		thread2.start();
+		
 		while (true) {
 			// Accepts any connections
 			Socket clientSocket = serverSocket.accept();
@@ -66,6 +70,39 @@ public class Server {
 			e.printStackTrace();
 		}
 
+	}
+}
+
+// Makes sure that the clients are still active, if not delete them
+class PingHandler implements Runnable {
+	
+	// Miliseconds
+	private final long PING_INTERVAL = 60000;
+	
+	@Override
+	public void run() {
+		while (true) {
+			for (ClientHandler client : Server.clients) {
+				try {
+					client.sendData("Ping!");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					if (!client.increaseRetryCount()) {
+						System.out.println("Client has been removed from active connections: " + client.S.toString());
+						
+						Server.clients.remove(client);
+					}
+				}
+			}
+			
+			try {
+				Thread.sleep(PING_INTERVAL);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 }
 
@@ -93,10 +130,17 @@ class ThreadHandlers implements Runnable {
 class ClientHandler implements Runnable {
 	public final Socket S;
 	public final String PROC_ID;
+	
+	private int retryConnections;
+	private boolean isConnected;
+	private long lastPinged;
 
 	public ClientHandler(Socket S, String PROC_ID) {
 		this.S = S;
 		this.PROC_ID = PROC_ID;
+		this.retryConnections = 0;
+		this.isConnected = true;
+		this.lastPinged = System.currentTimeMillis();
 	}
 
 	@Override
@@ -108,57 +152,23 @@ class ClientHandler implements Runnable {
 			e.printStackTrace();
 		}
 
-		String[] data = null;
 		try {
-			data = recieveData();
-		} catch (IOException | InterruptedException e) {
+			processData();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-			System.out.println("Something went wrong... with client: " + S.toString());
-			return;
 		}
-
-		if (!data[0].equals("-1")) {
-
-			for (String d : data)
-				System.out.println("Client: " + S.toString() + " sent this data: " + d);
-		}
-
-//		while (true) {
-//			try {
-//				String[] data = recieveData();
-//
-//				if (!data[0].equals("-1")) {
-//
-//					for (String d : data)
-//						System.out.println("Client: " + s.toString() + " sent this data: " + d);
-//				}
-//
-//				Thread.sleep(250);
-//			} catch (IOException | InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//				break;
-//			}
-//		}
-//
-//		try {
-//			s.close();
-//			System.out.println("Client " + s.toString() + " has disconnected");
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 	}
 
 	public boolean sendData(String data) throws IOException {
-		System.out.println("Sending data");
 		PrintWriter writer = new PrintWriter(S.getOutputStream());
 
 		if (writer.checkError())
 			return false;
-		writer.println(data);
+		
+		// "`" means its the end of the data line
+		writer.println(data + "`");
 		writer.flush();
-		System.out.println("Data has been sent!");
 		return true;
 	}
 
@@ -179,9 +189,7 @@ class ClientHandler implements Runnable {
 		while ((red = S.getInputStream().read(buffer)) > -1) {
 			redData = new byte[red];
 			System.arraycopy(buffer, 0, redData, 0, red);
-
-			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
-
+			redDataText = new String(redData, "UTF-8"); // The client sends UTF-8 Encoded
 			clientData += redDataText;
 
 			if (clientData.indexOf("`") != -1) {
@@ -191,7 +199,58 @@ class ClientHandler implements Runnable {
 
 		// Turn all the sent commands into an array in case if they get combined
 		String[] data = clientData.split("`");
-		clientData = clientData.replaceAll("`", "");
+		//clientData = clientData.replaceAll("`", "");
 		return data;
+	}
+	
+	// Reads and parses the data from the client
+	public void processData() throws IOException {
+		String[] data = null;
+		try {
+			data = recieveData();
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+			System.out.println("Something went wrong when processing data... with client: " + S.toString());
+			return;
+		}
+
+		if (!data[0].equals("-1")) {
+			for (String d : data) {
+				System.out.println("Client: " + S.toString() + " sent this data: " + d);
+				
+				if (d.equals("Process_ID: " + this.PROC_ID)) {
+					this.isConnected = true;
+					this.lastPinged = System.currentTimeMillis();
+					sendData("I see you are still alive!");
+				} else if (d.equals("Process_ID Is Empty")) {
+					this.lastPinged = System.currentTimeMillis();
+					sendData("Process_ID" + this.PROC_ID);
+				}
+			}
+		}
+	}
+	
+	public boolean isAlive() {
+		return this.isConnected;
+	}
+	
+	public int getRetryCount() {
+		return this.retryConnections;
+	}
+	
+	// Returns false : Delete this client b/c its inactive
+	// Returns true: its still not exceeded the retry maximum limit
+	public boolean increaseRetryCount() {
+		this.retryConnections++;
+		
+		if (this.retryConnections > 3) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	public long getLastPingTime() {
+		return this.lastPinged;
 	}
 }
