@@ -77,7 +77,7 @@ public class Server {
 class PingHandler implements Runnable {
 	
 	// Miliseconds
-	private final long PING_INTERVAL = 60000;
+	private final long PING_INTERVAL = 1000;
 	
 	@Override
 	public void run() {
@@ -90,6 +90,13 @@ class PingHandler implements Runnable {
 					e.printStackTrace();
 					if (!client.increaseRetryCount()) {
 						System.out.println("Client has been removed from active connections: " + client.S.toString());
+						
+						try {
+							client.S.close();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 						
 						Server.clients.remove(client);
 					}
@@ -145,13 +152,6 @@ class ClientHandler implements Runnable {
 
 	@Override
 	public void run() {
-		try {
-			sendData("Process_ID: " + this.PROC_ID);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
 		try {
 			processData();
 		} catch (IOException e) {
