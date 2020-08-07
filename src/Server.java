@@ -185,7 +185,7 @@ class ClientHandler implements Runnable {
 		
 		// "`" means its the end of the data line
 		writer.println(data + "`");
-		writer.flush();
+		//writer.flush();
 		return true;
 	}
 
