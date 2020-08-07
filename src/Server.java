@@ -148,6 +148,13 @@ class ClientHandler implements Runnable {
 		this.retryConnections = 0;
 		this.isConnected = true;
 		this.lastPinged = System.currentTimeMillis();
+		
+		try {
+			sendData("Process_ID" + this.PROC_ID);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
