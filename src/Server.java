@@ -86,20 +86,25 @@ class PingHandler implements Runnable {
 				try {
 					client.sendData("Ping!");
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
-					if (!client.increaseRetryCount()) {
-						System.out.println("Client has been removed from active connections: " + client.S.toString());
+				}
+				
+				if (System.currentTimeMillis() - client.getLastPingTime() > PING_INTERVAL) {
+					client.increaseRetryCount();
+					
+					if (!client.keepAlive()) {
+						System.out.println("Client has been removed: " + client.S.toString());
 						
 						try {
 							client.S.close();
-						} catch (IOException e1) {
+						} catch (IOException e) {
 							// TODO Auto-generated catch block
-							e1.printStackTrace();
+							e.printStackTrace();
 						}
 						
 						Server.clients.remove(client);
 					}
+					
 				}
 			}
 			
@@ -154,14 +159,6 @@ class ClientHandler implements Runnable {
 		
 		try {
 			sendData("Process_ID: " + this.PROC_ID);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		try {
-			sendData("Ping!");
-			System.out.println("Send a ping :D");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -255,11 +252,13 @@ class ClientHandler implements Runnable {
 		return this.retryConnections;
 	}
 	
+	public void increaseRetryCount() {
+		this.retryConnections++;
+	}
+	
 	// Returns false : Delete this client b/c its inactive
 	// Returns true: its still not exceeded the retry maximum limit
-	public boolean increaseRetryCount() {
-		this.retryConnections++;
-		
+	public boolean keepAlive() {
 		if (this.retryConnections > 3) {
 			return false;
 		} else {
