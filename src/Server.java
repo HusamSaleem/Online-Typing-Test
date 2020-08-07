@@ -2,49 +2,58 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
 
-	static ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
-	static ServerSocket serverSocket;
+	public static ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
+	ServerSocket serverSocket;
+	private static int port = 5014;
+	
+	private int proc_ID_Counter = 1;
 
-	public static void main(String[] args) throws IOException, InterruptedException {
-		Server server = new Server();
+	public static ExecutorService threadPool;
 
+	public Server(int port, int poolSize) throws IOException {
+		this.serverSocket = new ServerSocket(port);
+		threadPool = Executors.newFixedThreadPool(poolSize);
+
+	}
+
+	public static void main(String[] args) throws IOException {
+		Server server = new Server(port, 25);
+		server.start();
+
+		// Close all sockets when java program is terminated
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				server.shutDown();
 			}
 		});
-//		
-//		Thread connThread = new Thread(new ClientConnectionHandler());
-//		connThread.start();
+	}
 
-		serverSocket = new ServerSocket(5014);
+	// Starts the server and starts listening on the specified port
+	// Accepts any connections
+	// Makes new threads for each client to receive data from the clients
+	private void start() throws IOException {
 		System.out.println("Server is listening on port: " + serverSocket.getLocalPort());
+
+		// A thread to handle the thread pool
+		Thread thread = new Thread(new ThreadHandlers());
+		thread.start();
 
 		while (true) {
 			// Accepts any connections
 			Socket clientSocket = serverSocket.accept();
 			System.out.println("Client Connected: " + clientSocket.toString());
 
-			// Add client to existing client list
-			ClientHandler cl = new ClientHandler(clientSocket);
-			Thread thread = new Thread(cl);
+			// Add client to existing client list and make a new thread for the client
+			ClientHandler cl = new ClientHandler(clientSocket, Integer.toString(proc_ID_Counter));
+			proc_ID_Counter++;
 
-			thread.start();
 			clients.add(cl);
-		}
-
-	}
-	
-	private void deleteInactiveClients() {
-		for (ClientHandler c : Server.clients) {
-			if (c.s.isClosed() || !c.s.isConnected()) {
-				Server.clients.remove(c);
-			}
 		}
 	}
 
@@ -60,96 +69,91 @@ public class Server {
 	}
 }
 
-class ClientConnectionHandler extends Thread{
+class ThreadHandlers implements Runnable {
+
 	@Override
 	public void run() {
+
 		while (true) {
-			for (ClientHandler c : Server.clients) {
-				try {
-					if (!c.sendData("Connection Status Check")) {
-						System.out.println("Client " + c.toString() + " has disconnected");
-						c.s.close();
-						Server.clients.remove(c);
-					}
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			for (ClientHandler client : Server.clients) {
+				Server.threadPool.execute(client);
 			}
 			
 			try {
-				Thread.sleep(60000);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+
 	}
 }
 
-class ClientHandler extends Thread {
-	public final Socket s;
+class ClientHandler implements Runnable {
+	public final Socket S;
+	public final String PROC_ID;
 
-	public ClientHandler(Socket s) {
-		this.s = s;
-		
-		try {
-			s.setKeepAlive(true);
-		} catch (SocketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.out.println("Client " + s.toString() + " has disconnected");
-			try {
-				s.close();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
-		}
-		
+	public ClientHandler(Socket S, String PROC_ID) {
+		this.S = S;
+		this.PROC_ID = PROC_ID;
 	}
 
 	@Override
 	public void run() {
 		try {
-			sendData("Hello");
+			sendData("Process_ID: " + this.PROC_ID);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
-		while (true) {
-			try {
-				String[] data = recieveData();
-				
-				if (!data[0].equals("-1")) {
-					
-					for (String d : data)
-						System.out.println("Client: " + s.toString() + " sent this data: " + d);
-				}
-				
-				Thread.sleep(250);
-			} catch (IOException | InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				break;
-			}
 		}
 
+		String[] data = null;
 		try {
-			s.close();
-			System.out.println("Client " + s.toString() + " has disconnected");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			data = recieveData();
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
+			System.out.println("Something went wrong... with client: " + S.toString());
+			return;
 		}
+
+		if (!data[0].equals("-1")) {
+
+			for (String d : data)
+				System.out.println("Client: " + S.toString() + " sent this data: " + d);
+		}
+
+//		while (true) {
+//			try {
+//				String[] data = recieveData();
+//
+//				if (!data[0].equals("-1")) {
+//
+//					for (String d : data)
+//						System.out.println("Client: " + s.toString() + " sent this data: " + d);
+//				}
+//
+//				Thread.sleep(250);
+//			} catch (IOException | InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//				break;
+//			}
+//		}
+//
+//		try {
+//			s.close();
+//			System.out.println("Client " + s.toString() + " has disconnected");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 	public boolean sendData(String data) throws IOException {
 		System.out.println("Sending data");
-		PrintWriter writer = new PrintWriter(s.getOutputStream());
-		
+		PrintWriter writer = new PrintWriter(S.getOutputStream());
+
 		if (writer.checkError())
 			return false;
 		writer.println(data);
@@ -167,24 +171,24 @@ class ClientHandler extends Thread {
 		String redDataText;
 
 		// If there isn't any bytes that are ready to be read, then return a -1
-		if (s.getInputStream().available() <= 0) {
-			return new String[] {"-1"};
+		if (S.getInputStream().available() <= 0) {
+			return new String[] { "-1" };
 		}
-		
+
 		// While there is still data available
-		while ((red = s.getInputStream().read(buffer)) > -1) {
+		while ((red = S.getInputStream().read(buffer)) > -1) {
 			redData = new byte[red];
 			System.arraycopy(buffer, 0, redData, 0, red);
 
 			redDataText = new String(redData, "UTF-8"); // Assuming the client sends UTF-8 Encoded
-			
+
 			clientData += redDataText;
-			
+
 			if (clientData.indexOf("`") != -1) {
 				break;
 			}
 		}
-		
+
 		// Turn all the sent commands into an array in case if they get combined
 		String[] data = clientData.split("`");
 		clientData = clientData.replaceAll("`", "");
