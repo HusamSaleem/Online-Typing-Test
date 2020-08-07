@@ -40,7 +40,7 @@ public class Server {
 	private void start() throws IOException {
 		System.out.println("Server is listening on port: " + serverSocket.getLocalPort());
 
-		// A thread to handle the thread pool
+		// A thread to handle the thread pool and the client's tasks
 		Thread thread = new Thread(new ThreadHandlers());
 		thread.start();
 		
@@ -77,7 +77,7 @@ public class Server {
 class PingHandler implements Runnable {
 	
 	// Miliseconds
-	private final long PING_INTERVAL = 1000;
+	private final long PING_INTERVAL = 5000;
 	
 	@Override
 	public void run() {
@@ -103,6 +103,8 @@ class PingHandler implements Runnable {
 				}
 			}
 			
+			System.out.println("Finished pinging clients...");
+			
 			try {
 				Thread.sleep(PING_INTERVAL);
 			} catch (InterruptedException e) {
@@ -113,6 +115,7 @@ class PingHandler implements Runnable {
 	}
 }
 
+// Listens for data from each client and processes it 
 class ThreadHandlers implements Runnable {
 
 	@Override
@@ -150,7 +153,7 @@ class ClientHandler implements Runnable {
 		this.lastPinged = System.currentTimeMillis();
 		
 		try {
-			sendData("Process_ID" + this.PROC_ID);
+			sendData("Process_ID: " + this.PROC_ID);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -229,9 +232,9 @@ class ClientHandler implements Runnable {
 					this.isConnected = true;
 					this.lastPinged = System.currentTimeMillis();
 					sendData("I see you are still alive!");
-				} else if (d.equals("Process_ID Is Empty")) {
+				} else if (d.equals("Process_ID: NULL")) {
 					this.lastPinged = System.currentTimeMillis();
-					sendData("Process_ID" + this.PROC_ID);
+					sendData("Process_ID: " + this.PROC_ID);
 				}
 			}
 		}
