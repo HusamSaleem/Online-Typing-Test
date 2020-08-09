@@ -21,7 +21,7 @@ public class CmdListener implements Runnable{
 		System.out.println("1. Display how many clients there are (client -c)");
 		System.out.println("2. Display all connected clients info (client -i)");
 		System.out.println("3. Send data to a client manually (-client -msg)");
-		// System.out.println("4. ");
+		System.out.println("4. Send an announcement to all connected clients (server -msg)");
 
 		processInput(getInput());
 		showMenu();
@@ -35,6 +35,9 @@ public class CmdListener implements Runnable{
 			System.out.println(displayAllConnectedClientInfo());
 		} else if (input.equals("3") || input.equalsIgnoreCase("client -msg")) {
 			sendMsgToClient();
+		} else if (input.equals("4") || input.equalsIgnoreCase("server -msg")) {
+			serverMsg();
+			
 		} else {
 			System.out.println("Unknown command: " + input);
 		}
@@ -78,6 +81,23 @@ public class CmdListener implements Runnable{
 		}
 		
 		return false;
+	}
+	
+	private boolean serverMsg() {
+		System.out.println("Please enter your message to send to all the clients...");
+		
+		String msg = scan.next();
+		
+		for (ClientHandler c: Server.clients) {
+			try {
+				c.sendData(msg);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		return true;
 	}
 
 	private String getInput() {
