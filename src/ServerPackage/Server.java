@@ -30,7 +30,7 @@ public class Server {
 		// Close all sockets when java program is terminated
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
-				server.shutDown();
+				server.shutDown(); 
 			}
 		});
 	}
