@@ -30,7 +30,7 @@ public class CmdListener implements Runnable{
 
 	private void processInput(String input) {
 		if (input.equals("1") || input.equalsIgnoreCase("client -c")) {
-			System.out.println("There are: " + getConnectedClientsAmount() + " connected Clients");
+			System.out.println("\nThere are: " + getConnectedClientsAmount() + " connected Client(s)");
 		} else if (input.equals("2") || input.equalsIgnoreCase("client -i")) {
 			System.out.println(displayAllConnectedClientInfo());
 		} else if (input.equals("3") || input.equalsIgnoreCase("client -msg")) {
@@ -47,6 +47,7 @@ public class CmdListener implements Runnable{
 
 	private String displayAllConnectedClientInfo() {
 		String s = "";
+		System.out.println("\n---------- Connected Clients ----------");
 		for (ClientHandler c : Server.clients) {
 			s += c.PROC_ID + ": " + c.S.toString() + "\n";
 		}
@@ -80,7 +81,7 @@ public class CmdListener implements Runnable{
 	}
 
 	private String getInput() {
-		String input = scan.next();
+		String input = scan.nextLine();
 
 		return input;
 	}
