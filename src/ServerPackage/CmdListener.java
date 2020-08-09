@@ -37,9 +37,6 @@ public class CmdListener implements Runnable{
 			sendMsgToClient();
 		} else if (input.equals("4") || input.equalsIgnoreCase("server -msg")) {
 			serverMsg();
-			
-		} else {
-			System.out.println("Unknown command: " + input);
 		}
 
 	}
@@ -62,7 +59,7 @@ public class CmdListener implements Runnable{
 		System.out.println(displayAllConnectedClientInfo());
 		System.out.println("Choose a process_id to send to");
 		
-		String ID = scan.next();
+		String ID = scan.nextLine();
 		
 		for (ClientHandler c: Server.clients) {
 			if (c.PROC_ID.equalsIgnoreCase(ID)) {
@@ -86,7 +83,7 @@ public class CmdListener implements Runnable{
 	private boolean serverMsg() {
 		System.out.println("Please enter your message to send to all the clients...");
 		
-		String msg = scan.next();
+		String msg = scan.nextLine();
 		
 		for (ClientHandler c: Server.clients) {
 			try {
