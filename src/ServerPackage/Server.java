@@ -1,10 +1,8 @@
 package ServerPackage;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -49,6 +47,7 @@ public class Server {
 		Thread thread2 = new Thread(new PingHandler());
 		thread2.start();
 		
+		//Thread to listen for scanner requests
 		Thread thread3 = new Thread(new CmdListener());
 		thread3.start();
 		
