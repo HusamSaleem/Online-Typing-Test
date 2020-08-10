@@ -23,13 +23,12 @@ public class MysqlConn {
 	
 	
 	private void startConnection() {
-		try {
-			Class.forName("com.mysql.jdbc.Driver"); 
+		try { 
 			dbConn = DriverManager.getConnection(url, username, password);
 			
 			if (dbConn != null)
 				System.out.println("Connectionn has been established!");
-		} catch (SQLException | ClassNotFoundException e) {
+		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		} 
 	}
