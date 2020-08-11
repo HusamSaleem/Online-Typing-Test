@@ -2,7 +2,10 @@ package ServerPackage;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import java.sql.Statement;
 
 public class MysqlConn {
 	
@@ -15,12 +18,8 @@ public class MysqlConn {
 	public MysqlConn() {
 		
 		startConnection();
+		displayAccounts();
 	}
-
-	public static void main(String[] args) {
-		//MysqlConn mysql = new MysqlConn();
-	}
-	
 	
 	private void startConnection() {
 		try { 
@@ -33,6 +32,23 @@ public class MysqlConn {
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 		} 
+	}
+	
+	private void displayAccounts() {
+		try {
+			Statement statement = dbConn.createStatement();
+			ResultSet result = statement.executeQuery("SELECT * FROM accounts");
+			
+			while (result.next()) {
+				String name = result.getString("Name");
+				System.out.println(result.getInt("ID") + " " + name);
+			}
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 }
