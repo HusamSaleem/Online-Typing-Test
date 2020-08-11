@@ -22,6 +22,12 @@ public class Server {
 	}
 
 	public static void main(String[] args) throws IOException {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		MysqlConn c = new MysqlConn();
 		Server server = new Server(port, 25);
 		server.start();
