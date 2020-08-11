@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import java.sql.Statement;
 
 public class MysqlConn {
@@ -19,6 +18,7 @@ public class MysqlConn {
 		
 		startConnection();
 		displayAccounts();
+		System.out.println(registerUsername("Test"));
 	}
 	
 	private void startConnection() {
@@ -39,14 +39,31 @@ public class MysqlConn {
 			Statement statement = dbConn.createStatement();
 			ResultSet result = statement.executeQuery("SELECT * FROM accounts ORDER BY ID");
 			
+			System.out.println("----------ALL ACCOUNTS CURRENTLY REGISTERED----------");
 			while (result.next()) {
+				// Retrieve the column for each row
 				String name = result.getString("Name");
-				System.out.println(result.getInt("ID") + " " + name);
+				System.out.println("ID: " + result.getInt("ID") + ", Name: " + name);
 			}
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	
+	private boolean registerUsername(String user) {
+		try {
+			Statement statement = dbConn.createStatement();
+			ResultSet result = statement.executeQuery("INSERT INTO accounts(Name) VALUES('" + user + "')");
+			
+			return true;
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+			return false;
 		}
 		
 	}
