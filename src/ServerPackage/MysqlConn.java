@@ -31,7 +31,7 @@ public class MysqlConn {
 			if (dbConn != null)
 				System.out.println("Connectionn has been established!");
 		} catch (SQLException | ClassNotFoundException e) {
-			System.out.println(e.getMessage());
+			e.printStackTrace();
 		} 
 	}
 
