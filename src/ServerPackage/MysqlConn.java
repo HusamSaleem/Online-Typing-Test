@@ -37,7 +37,7 @@ public class MysqlConn {
 	private void displayAccounts() {
 		try {
 			Statement statement = dbConn.createStatement();
-			ResultSet result = statement.executeQuery("SELECT * FROM accounts");
+			ResultSet result = statement.executeQuery("SELECT * FROM accounts ORDER BY ID");
 			
 			while (result.next()) {
 				String name = result.getString("Name");
