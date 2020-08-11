@@ -8,7 +8,7 @@ public class MysqlConn {
 	
 	Connection dbConn = null;
 	
-	private String url = "jdbc:mysql://localhost:3306/TypingTestDb";
+	private String url = "jdbc:mysql://localhost:3306/TypingTestDb?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 	private String username = "PotatoAdmin";
 	private String password = "Popakon123!";
 	
