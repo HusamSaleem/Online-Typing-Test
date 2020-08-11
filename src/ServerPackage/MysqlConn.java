@@ -18,7 +18,7 @@ public class MysqlConn {
 	}
 
 	public static void main(String[] args) {
-		MysqlConn mysql = new MysqlConn();
+		//MysqlConn mysql = new MysqlConn();
 	}
 	
 	
