@@ -17,8 +17,6 @@ public class MysqlConn {
 	public MysqlConn() {
 
 		startConnection();
-		displayAccounts();
-		System.out.println(registerUsername("Test"));
 	}
 
 	private void startConnection() {
@@ -34,7 +32,7 @@ public class MysqlConn {
 		}
 	}
 
-	private void displayAccounts() {
+	public void displayAccounts() {
 		try {
 			Statement statement = dbConn.createStatement();
 			ResultSet result = statement.executeQuery("SELECT * FROM accounts ORDER BY ID");
@@ -54,7 +52,7 @@ public class MysqlConn {
 		}
 	}
 
-	private boolean registerUsername(String user) {
+	public boolean registerUsername(String user) {
 		try {
 			Statement statement = dbConn.createStatement();
 			int result = statement.executeUpdate("INSERT INTO accounts(Name) VALUES('" + user + "')");

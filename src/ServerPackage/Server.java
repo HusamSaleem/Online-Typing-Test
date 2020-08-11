@@ -16,13 +16,15 @@ public class Server {
 
 	public static ExecutorService threadPool;
 	
+	public static MysqlConn db;
+	
 	public Server(int port, int poolSize) throws IOException {
 		this.serverSocket = new ServerSocket(port);
 		threadPool = Executors.newFixedThreadPool(poolSize);
 	}
 
 	public static void main(String[] args) throws IOException {
-		MysqlConn c = new MysqlConn();
+		db = new MysqlConn();
 		Server server = new Server(port, 25);
 		server.start();
 

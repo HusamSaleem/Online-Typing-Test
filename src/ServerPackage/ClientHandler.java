@@ -8,6 +8,8 @@ public class ClientHandler implements Runnable {
 	public final Socket S;
 	public final String PROC_ID;
 
+	private String playerName;
+
 	private int retryConnections;
 	private boolean isConnected;
 	private long lastPinged;
@@ -95,16 +97,31 @@ public class ClientHandler implements Runnable {
 				System.out.println("Client: " + S.toString() + " sent this data: " + d);
 
 				if (d.equals("Process_ID: " + this.PROC_ID)) {
+
 					this.isConnected = true;
 					this.lastPinged = System.currentTimeMillis();
+
 				} else if (d.equals("Process_ID: NULL")) {
+
 					this.lastPinged = System.currentTimeMillis();
 					sendData("Process_ID: " + this.PROC_ID);
+
+				} else if (d.contains("Register Username: ")) {
+
+					String name = d.substring(19).trim();
+					if (Server.db.registerUsername(name.toLowerCase())) {
+						System.out.println(name + " has been sucessfully registered");
+						sendData("Register Success");
+
+						this.playerName = name;
+					} else {
+						sendData("Register Failure");
+					}
 				}
 			}
 		}
 	}
-	
+
 	// Returns false : Delete this client b/c its inactive
 	// Returns true: its still not exceeded the retry maximum limit
 	public boolean keepAlive() {
@@ -114,7 +131,6 @@ public class ClientHandler implements Runnable {
 			return true;
 		}
 	}
-
 
 	public boolean isAlive() {
 		return this.isConnected;
@@ -130,5 +146,9 @@ public class ClientHandler implements Runnable {
 
 	public long getLastPingTime() {
 		return this.lastPinged;
+	}
+
+	public String getName() {
+		return this.playerName;
 	}
 }
