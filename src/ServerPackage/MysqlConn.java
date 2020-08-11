@@ -29,7 +29,7 @@ public class MysqlConn {
 			dbConn = DriverManager.getConnection(url, username, password);
 			
 			if (dbConn != null)
-				System.out.println("Connectionn has been established!");
+				System.out.println("Database Connection has been established!");
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 		} 
