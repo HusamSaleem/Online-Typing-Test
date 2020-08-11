@@ -17,12 +17,13 @@ public class CmdListener implements Runnable{
 	}
 
 	private void showMenu() {
-		System.out.println("---------- MENU ----------\n");
+		System.out.println("---------- MENU ----------");
 		System.out.println("1. Display how many clients there are (client -c)");
 		System.out.println("2. Display all connected clients info (client -i)");
 		System.out.println("3. Send data to a client manually (client -msg)");
 		System.out.println("4. Send an announcement to all connected clients (server -msg)");
 		System.out.println("5. Display all registered users from the Database");
+		System.out.println("--------------------------");
 
 		processInput(getInput());
 		showMenu();
