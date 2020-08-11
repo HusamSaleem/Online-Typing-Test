@@ -22,6 +22,7 @@ public class CmdListener implements Runnable{
 		System.out.println("2. Display all connected clients info (client -i)");
 		System.out.println("3. Send data to a client manually (client -msg)");
 		System.out.println("4. Send an announcement to all connected clients (server -msg)");
+		System.out.println("5. Display all registered users from the Database");
 
 		processInput(getInput());
 		showMenu();
@@ -37,6 +38,8 @@ public class CmdListener implements Runnable{
 			sendMsgToClient();
 		} else if (input.equals("4") || input.equalsIgnoreCase("server -msg")) {
 			serverMsg();
+		} else if (input.equals("5") || input.equalsIgnoreCase("db user -d")) {
+			 displayUsers();
 		}
 
 	}
@@ -100,6 +103,10 @@ public class CmdListener implements Runnable{
 		}
 		
 		return true;
+	}
+	
+	private void displayUsers() {
+		Server.db.displayAccounts();
 	}
 
 	private String getInput() {
