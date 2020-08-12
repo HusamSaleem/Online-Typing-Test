@@ -125,7 +125,7 @@ public class ClientHandler implements Runnable {
 					setCurrentInput(d.substring(14));
 				} else if (d.equals("Join 2 player easy queue")) {
 					Server.mmService.addPlayerToQueue(this);
-					System.out.println(getName() + " has been Added to the queue");
+					System.out.println(getName() + " has been added to the queue");
 					sendData("Added to the queue");
 				}
 			}
