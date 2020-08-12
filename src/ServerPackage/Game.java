@@ -102,7 +102,7 @@ public class Game {
 			
 			for (Entry<String, ClientHandler> c1 : players.entrySet()) {
 				try {
-					c1.getValue().sendData("Name: " + c1.getValue().getName());
+					c1.getValue().sendData("Name: " + c.getValue().getName());
 					c1.getValue().sendData("WPM: " + getPlayerWPM(c.getKey()));
 					c1.getValue().sendData("Accuracy: " + getPlayerAccuracy(c.getKey()));
 					c1.getValue().sendData("Time Left: " + getTimeLeft()); 
