@@ -1,18 +1,20 @@
 package ServerPackage;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Queue;
 
 
 public class MatchMakingService {
-	LinkedHashSet<ClientHandler> playerEasyQueue2;
+	Queue<ClientHandler> playerEasyQueue2;
 	public static HashMap<Integer, Game> activeGameSessions;
 	
 	public MatchMakingService() {
 		// Linked hash set that provides uniqueness and preserves insertion order...
-		this.playerEasyQueue2 = new LinkedHashSet<ClientHandler>();
+		this.playerEasyQueue2 = new ArrayDeque<ClientHandler>();
 		MatchMakingService.activeGameSessions = new HashMap<Integer, Game>();
 	}
 	
@@ -24,17 +26,8 @@ public class MatchMakingService {
 	public void checkQueue() {
 		while (playerEasyQueue2.size() % 2 == 0) {
 			ArrayList<ClientHandler> players = new ArrayList<ClientHandler>();
-			
-			Iterator<ClientHandler> i = playerEasyQueue2.iterator();
-			ClientHandler c = i.next();
-			
-			players.add(c);
-			i.remove();
-			
-			c = i.next();
-			players.add(c);
-			i.remove();
-			
+			players.add(playerEasyQueue2.poll());
+			players.add(playerEasyQueue2.poll());
 			Game game = new Game(players, 1);
 			activeGameSessions.put(game.getGameId(), game);
 		}

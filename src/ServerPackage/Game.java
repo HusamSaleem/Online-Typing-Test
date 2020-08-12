@@ -61,7 +61,7 @@ public class Game {
 	private void setMaps(ArrayList<ClientHandler> players) {
 		for (ClientHandler c : players) {
 			this.players.put(c.getName(), c);
-			this.playerStats.put(c.getName(), null);
+			this.playerStats.put(c.getName(), new ArrayList<String>());
 		}
 	}
 
