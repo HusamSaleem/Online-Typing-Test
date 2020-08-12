@@ -173,7 +173,7 @@ public class Game {
 		Scanner fileReader = null;
 		wordList.clear();
 		try {
-			file = new File("Documents/Typing-Test-Server/TextFiles/" + txtFile);
+			file = new File(txtFile);
 			fileReader = new Scanner(file);
 
 		} catch (FileNotFoundException e) {
