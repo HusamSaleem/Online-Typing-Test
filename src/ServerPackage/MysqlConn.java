@@ -89,7 +89,7 @@ public class MysqlConn {
 			
 			if (result == 1) {
 				if (res.next()) {
-					return res.getInt("Game_ID");
+					return res.getInt(1);
 				}
 			} else {
 				System.out.println("Couldn't create the game session");
