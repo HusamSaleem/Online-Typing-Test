@@ -47,7 +47,7 @@ public class Game {
 
 		if (this.id != -1) {
 			System.out.println("Game ID: " + this.id + " Successfully created the game session... Players: {"
-					+ players.get(0).getName() + ", " + players.get(1).getName());
+					+ players.get(0).getName() + ", " + players.get(1).getName() + "}");
 
 			// Easy
 			if (difficulty == 1) {
@@ -173,7 +173,7 @@ public class Game {
 		Scanner fileReader = null;
 		wordList.clear();
 		try {
-			file = new File(txtFile);
+			file = new File("/TextFiles/" + txtFile);
 			fileReader = new Scanner(file);
 
 		} catch (FileNotFoundException e) {
