@@ -18,6 +18,8 @@ public class Server {
 	
 	public static MysqlConn db;
 	
+	public static MatchMakingService mmService;
+	
 	public Server(int port, int poolSize) throws IOException {
 		this.serverSocket = new ServerSocket(port);
 		threadPool = Executors.newFixedThreadPool(poolSize);
@@ -25,6 +27,7 @@ public class Server {
 
 	public static void main(String[] args) throws IOException {
 		db = new MysqlConn();
+		mmService = new MatchMakingService();
 		Server server = new Server(port, 25);
 		server.start();
 
@@ -53,6 +56,10 @@ public class Server {
 		//Thread to listen for scanner requests
 		Thread thread3 = new Thread(new CmdListener());
 		thread3.start();
+		
+		//Thread to handle game sessions...
+		Thread thread4 = new Thread(new GameManager());
+		thread4.start();
 		
 		while (true) {
 			// Accepts any connections

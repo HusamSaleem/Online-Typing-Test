@@ -2,6 +2,7 @@ package ServerPackage;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -43,7 +44,7 @@ public class MysqlConn {
 				String name = result.getString("Name");
 				System.out.println("ID: " + result.getInt("ID") + ", Name: " + name);
 			}
-			
+
 			System.out.println("-----------------------------------------------------");
 
 		} catch (SQLException e) {
@@ -68,7 +69,40 @@ public class MysqlConn {
 
 			return false;
 		}
+	}
 
+	public int createGameSess(String player1Name, String player2Name) {
+		try {
+			//Statement statement = dbConn.createStatement();
+
+			PreparedStatement statement = dbConn.prepareStatement("Player_One_WPM, Player_Two_WPM, Player_One_Accuracy, Player_Two_Accuracy, Player_One_Name, Player_Two_Name) " + "VALUES (?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+			statement.setInt(1, 0);
+			statement.setInt(2, 0);
+			statement.setInt(3, 0);
+			statement.setInt(4, 0);
+			statement.setString(5, player1Name);
+			statement.setString(6, player2Name);
+			
+			int result = statement.executeUpdate();
+			
+			ResultSet res = statement.getGeneratedKeys();
+			
+			if (result == 1) {
+				if (res.next()) {
+					return res.getInt("GAME_ID");
+				}
+			} else {
+				System.out.println("Couldn't create the game session");
+				return -1;
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+
+			return -1;
+		}
+		System.out.println("Couldn't create the game session");
+		return -1;
 	}
 
 }

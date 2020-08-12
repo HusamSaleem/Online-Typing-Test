@@ -7,16 +7,20 @@ import java.net.Socket;
 public class ClientHandler implements Runnable {
 	public final Socket S;
 	public final String PROC_ID;
-
+	
+	private int curGameID = -1;
 	private String playerName;
 
 	private int retryConnections;
 	private boolean isConnected;
 	private long lastPinged;
+	
+	private String currentInput;
 
 	public ClientHandler(Socket S, String PROC_ID) {
 		this.S = S;
 		this.PROC_ID = PROC_ID;
+		this.setCurrentInput("");
 
 		this.retryConnections = 0;
 		this.isConnected = true;
@@ -117,6 +121,12 @@ public class ClientHandler implements Runnable {
 					} else {
 						sendData("Register Failure");
 					}
+				} else if (d.contains("Input Update: ")) {
+					setCurrentInput(d.substring(14));
+				} else if (d.equals("Join 2 player easy queue")) {
+					Server.mmService.addPlayerToQueue(this);
+					System.out.println("Added to queue");
+					sendData("Added to the queue");
 				}
 			}
 		}
@@ -150,5 +160,21 @@ public class ClientHandler implements Runnable {
 
 	public String getName() {
 		return this.playerName;
+	}
+
+	public int getCurGameID() {
+		return curGameID;
+	}
+
+	public void setCurGameID(int curGameID) {
+		this.curGameID = curGameID;
+	}
+
+	public String getCurrentInput() {
+		return currentInput;
+	}
+
+	public void setCurrentInput(String currentInput) {
+		this.currentInput = currentInput;
 	}
 }

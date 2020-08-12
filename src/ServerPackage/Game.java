@@ -1,0 +1,232 @@
+package ServerPackage;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Scanner;
+
+public class Game {
+
+	private final int MAX_WORDS = 100;
+
+	private int id;
+	private final int difficulty;
+	private HashMap<String, ClientHandler> players;
+	// Array list, WPM = index 0, Accuracy = index 1
+	private HashMap<String, ArrayList<String>> playerStats;
+
+	private ArrayList<String> wordList;
+	private String wordListAsString;
+
+	private boolean isFinished;
+	
+	public boolean gameStarted;
+
+	// In Seconds...
+	private int timeLeft;
+
+	public Game(ArrayList<ClientHandler> players, int difficulty) {
+		this.players = new HashMap<String, ClientHandler>();
+		this.playerStats = new HashMap<String, ArrayList<String>>();
+		this.difficulty = difficulty;
+
+		setMaps(players);
+
+		this.wordList = new ArrayList<String>();
+		this.wordListAsString = "";
+
+		this.isFinished = false;
+		this.gameStarted = false;
+		this.timeLeft = 60;
+
+		this.id = Server.db.createGameSess(players.get(0).getName(), players.get(1).getName());
+
+		if (this.id != -1) {
+			System.out.println("Game ID: " + this.id + " Successfully created the game session... Players: {"
+					+ players.get(0).getName() + ", " + players.get(1).getName());
+
+			// Easy
+			if (difficulty == 1) {
+				startGame("easyWords.txt", players.get(0).getName(), players.get(1).getName());
+			}
+		} else {
+			System.out.println("Failed to create the game session");
+		}
+	}
+
+	private void setMaps(ArrayList<ClientHandler> players) {
+		for (ClientHandler c : players) {
+			this.players.put(c.getName(), c);
+			this.playerStats.put(c.getName(), null);
+		}
+	}
+
+	private void setPlayerGameIds(String player1Name, String player2Name) {
+		players.get(player1Name).setCurGameID(this.id);
+		players.get(player2Name).setCurGameID(this.id);
+	}
+
+	public void decreaseTimer() {
+		this.timeLeft--;
+
+		if (this.timeLeft <= 0) {
+			this.isFinished = true;
+			this.timeLeft = 0;
+		}
+	}
+	
+	public void updateClientData() {
+		for (Entry<String, ClientHandler> c : players.entrySet()) {
+			updateStats(c.getKey());
+			
+			try {
+				c.getValue().sendData("WPM: " + getPlayerWPM(c.getKey()));
+				c.getValue().sendData("Accuracy: " + getPlayerAccuracy(c.getKey()));
+				c.getValue().sendData("Time Left: " + getTimeLeft()); 
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void startGame(String fileName, String player1Name, String player2Name) {
+		setPlayerGameIds(player1Name, player2Name);
+		readFromFile(fileName);
+		shuffleWords();
+		this.wordListAsString = getWordsAsString();
+		sendWordList();
+		notifyClientsGameStarted();
+		this.gameStarted = true;
+	}
+	
+	public void notifyClientsGameStarted() {
+		for (Entry<String, ClientHandler> c : players.entrySet()) {
+			try {
+				c.getValue().sendData("Game Started");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public int getGameId() {
+		return this.id;
+	}
+
+	public int getTimeLeft() {
+		return this.timeLeft;
+	}
+
+	public void finishGame() {
+		this.isFinished = true;
+	}
+
+	public String getPlayerWPM(String playerName) {
+		return playerStats.get(playerName).get(0);
+	}
+
+	public String getPlayerAccuracy(String playerName) {
+		return playerStats.get(playerName).get(1);
+	}
+
+	public void setPlayerWPM(String playerName, String wpm) {
+		playerStats.get(playerName).set(0, wpm);
+	}
+
+	public void setPlayerAccuracy(String playerName, String accuracy) {
+		playerStats.get(playerName).set(1, accuracy);
+	}
+	
+	public boolean isGameDone() {
+		return this.isFinished;
+	}
+	
+	public void sendWordList() {
+		for (Entry<String, ClientHandler> c : this.players.entrySet()) {
+			try {
+				c.getValue().sendData("Word List: " + this.wordListAsString);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void readFromFile(String txtFile) {
+		File file;
+		Scanner fileReader = null;
+		wordList.clear();
+		try {
+			file = new File(txtFile);
+			fileReader = new Scanner(file);
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		while (fileReader.hasNext()) {
+			String word = fileReader.next();
+			wordList.add(word);
+		}
+	}
+
+	private void shuffleWords() {
+		Random rand = new Random();
+
+		String temp = null;
+
+		for (int i = 0; i < MAX_WORDS; i++) {
+			int randIndex = rand.nextInt(wordList.size());
+
+			temp = wordList.get(i);
+			wordList.set(i, wordList.get(randIndex));
+			wordList.set(randIndex, temp);
+		}
+	}
+
+	public String getWordsAsString() {
+		String result = "";
+
+		int i = 0;
+		for (String s : wordList) {
+			result += s + " ";
+
+			i++;
+			if (i >= MAX_WORDS)
+				break;
+		}
+
+		result = result.trim();
+		return result;
+	}
+
+	public void updateStats(String playerName) {
+		String userInput = players.get(playerName).getCurrentInput();
+
+		int wrongIndexCharCount = 0;
+
+		for (int i = 0; i < userInput.length(); i++) {
+			if (userInput.charAt(i) != wordListAsString.charAt(i)) {
+				wrongIndexCharCount++;
+			}
+		}
+
+		// Calculate the words per minute
+		float grossWPM = (userInput.length() / 5) / ((60 - timeLeft) / 60f);
+		float errorRate = wrongIndexCharCount / ((60 - timeLeft) / 60f);
+		float netWPM = grossWPM - errorRate;
+
+		if (netWPM < 0)
+			netWPM = 0;
+		
+		float accuracyCalc = ((userInput.length() - wrongIndexCharCount) / (float) userInput.length()) * 100f;
+		this.playerStats.get(playerName).add(0, Float.toString(netWPM));
+		this.playerStats.get(playerName).add(1, Float.toString(accuracyCalc));
+	}
+}
