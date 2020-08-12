@@ -75,7 +75,7 @@ public class MysqlConn {
 		try {
 			//Statement statement = dbConn.createStatement();
 
-			PreparedStatement statement = dbConn.prepareStatement("Player_One_WPM, Player_Two_WPM, Player_One_Accuracy, Player_Two_Accuracy, Player_One_Name, Player_Two_Name) " + "VALUES (?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement statement = dbConn.prepareStatement("INSERT INTO 2PlayerGames(Player_One_WPM, Player_Two_WPM, Player_One_Accuracy, Player_Two_Accuracy, Player_One_Name, Player_Two_Name) " + "VALUES (?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
 			statement.setInt(1, 0);
 			statement.setInt(2, 0);
 			statement.setInt(3, 0);

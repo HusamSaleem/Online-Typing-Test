@@ -2,15 +2,17 @@ package ServerPackage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+
 
 public class MatchMakingService {
-	Queue<ClientHandler> playerEasyQueue2;
+	LinkedHashSet<ClientHandler> playerEasyQueue2;
 	public static HashMap<Integer, Game> activeGameSessions;
 	
 	public MatchMakingService() {
-		this.playerEasyQueue2 = new LinkedList<ClientHandler>();
+		// Linked hash set that provides uniqueness and preserves insertion order...
+		this.playerEasyQueue2 = new LinkedHashSet<ClientHandler>();
 	}
 	
 	public void addPlayerToQueue(ClientHandler c) {
@@ -21,8 +23,17 @@ public class MatchMakingService {
 	public void checkQueue() {
 		while (playerEasyQueue2.size() % 2 == 0) {
 			ArrayList<ClientHandler> players = new ArrayList<ClientHandler>();
-			players.add(playerEasyQueue2.poll());
-			players.add(playerEasyQueue2.poll());
+			
+			Iterator<ClientHandler> i = playerEasyQueue2.iterator();
+			ClientHandler c = i.next();
+			
+			players.add(c);
+			i.remove();
+			
+			c = i.next();
+			players.add(c);
+			i.remove();
+			
 			Game game = new Game(players, 1);
 			activeGameSessions.put(game.getGameId(), game);
 		}
