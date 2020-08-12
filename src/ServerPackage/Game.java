@@ -86,6 +86,7 @@ public class Game {
 	
 	private void resetClientGameInfo() {
 		for (Entry<String, ClientHandler> c : players.entrySet()) {
+			c.getValue().sendData("Game Completed");
 			c.getValue().setCurGameID(-1);
 		}
 	}

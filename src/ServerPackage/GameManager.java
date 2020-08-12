@@ -4,9 +4,7 @@ import java.util.Map.Entry;
 
 public class GameManager implements Runnable {
 	final int SLEEP_INTERVAL = 1000;
-
-	// 5 Seconds
-	final long SEND_DATA_INTERVAL = 5;
+	final long SEND_DATA_INTERVAL = 5000;
 
 	long lastSentTime = 0;
 	
