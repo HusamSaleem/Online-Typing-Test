@@ -1,6 +1,5 @@
 package ServerPackage;
 
-import java.util.HashMap;
 import java.util.Map.Entry;
 
 public class GameManager implements Runnable {
@@ -10,11 +9,7 @@ public class GameManager implements Runnable {
 	final long SEND_DATA_INTERVAL = 5;
 
 	long lastSentTime = 0;
-
-	public GameManager() {
-		MatchMakingService.activeGameSessions = new HashMap<Integer, Game>();
-	}
-
+	
 	@Override
 	public void run() {
 		while (true) {
@@ -58,5 +53,6 @@ public class GameManager implements Runnable {
 				g.getValue().updateClientData();
 		}
 	}
+	
 
 }

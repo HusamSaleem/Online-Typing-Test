@@ -13,6 +13,7 @@ public class MatchMakingService {
 	public MatchMakingService() {
 		// Linked hash set that provides uniqueness and preserves insertion order...
 		this.playerEasyQueue2 = new LinkedHashSet<ClientHandler>();
+		MatchMakingService.activeGameSessions = new HashMap<Integer, Game>();
 	}
 	
 	public void addPlayerToQueue(ClientHandler c) {

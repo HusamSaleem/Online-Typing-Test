@@ -75,7 +75,14 @@ public class Game {
 
 		if (this.timeLeft <= 0) {
 			this.isFinished = true;
+			resetClientGameInfo();
 			this.timeLeft = 0;
+		}
+	}
+	
+	private void resetClientGameInfo() {
+		for (Entry<String, ClientHandler> c : players.entrySet()) {
+			c.getValue().setCurGameID(-1);
 		}
 	}
 	
