@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Scanner;
@@ -59,7 +60,10 @@ public class Game {
 	}
 
 	private void setMaps(ArrayList<ClientHandler> players) {
-		for (ClientHandler c : players) {
+		Iterator<ClientHandler> iter = players.iterator();
+		
+		while (iter.hasNext()) {
+			ClientHandler c = iter.next();
 			this.players.put(c.getName(), c);
 			this.playerStats.put(c.getName(), new ArrayList<String>());
 		}

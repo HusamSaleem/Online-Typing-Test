@@ -38,7 +38,7 @@ public class GameManager implements Runnable {
 				g.getValue().decreaseTimer();
 
 				if (g.getValue().isGameDone()) {
-					System.out.println("Game session has been completed and removed from active games: "
+					System.out.println("Game session has been completed and removed from active games, ID: "
 							+ g.getValue().getGameId());
 					MatchMakingService.activeGameSessions.remove(g.getKey());
 				}
