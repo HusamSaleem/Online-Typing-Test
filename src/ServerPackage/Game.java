@@ -5,11 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Scanner;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,7 +28,7 @@ public class Game {
 
 	private boolean isFinished;
 
-	public boolean gameStarted;
+	private boolean gameStarted;
 
 	// In Seconds...
 	private int timeLeft;
@@ -52,7 +50,7 @@ public class Game {
 
 		this.id = Server.db.createGameSess(playerList.get(0).getName(), playerList.get(1).getName());
 
-		if (this.id != -1) {  
+		if (this.id != -1) {
 			System.out.println("Game ID: " + this.id + " Successfully created the game session... Players: {"
 					+ playerList.get(0).getName() + ", " + playerList.get(1).getName() + "}");
 
@@ -63,7 +61,7 @@ public class Game {
 		} else {
 			System.out.println("Failed to create the game session");
 		}
-		
+
 	}
 
 	public void startGame(String fileName, String player1Name, String player2Name) {
@@ -75,13 +73,15 @@ public class Game {
 	}
 
 	private void setMaps(ArrayList<ClientHandler> playerList) {
-		
+
+		System.out.println("Size: " + playerList.size());
 		for (ClientHandler c : playerList) {
-			ArrayList<String> emptyList = new ArrayList<String>();
-			System.out.println(c);
-			this.players.put(c.getName(), c);
-			this.playerStats.put(c.getName(), emptyList);
-			this.playerNames.add(c.getName());
+			if (c != null) {
+				ArrayList<String> emptyList = new ArrayList<String>();
+				this.players.put(c.getName(), c);
+				this.playerStats.put(c.getName(), emptyList);
+				this.playerNames.add(c.getName());
+			}
 		}
 	}
 
@@ -100,11 +100,11 @@ public class Game {
 			this.timeLeft = 0;
 		}
 	}
-	
+
 	private void updateDatabase() {
 		Server.db.updateGameInfo(this.id, this.playerStats, this.playerNames);
 	}
-	
+
 	private void resetClientGameInfo() {
 		for (Entry<String, ClientHandler> c : players.entrySet()) {
 			try {
@@ -116,7 +116,7 @@ public class Game {
 			}
 		}
 	}
-	
+
 	// Time in seconds
 	public void sendTimeDelay(int time) {
 		for (Entry<String, ClientHandler> c : players.entrySet()) {
@@ -138,11 +138,11 @@ public class Game {
 				e.printStackTrace();
 			}
 		}
-		
+
 		sendWordList();
 		this.gameStarted = true;
 	}
-	
+
 	public void updateClientData() {
 		ClientHandler[] p = new ClientHandler[2];
 		int i = 0;
@@ -151,20 +151,20 @@ public class Game {
 			p[i] = c.getValue();
 			i++;
 		}
-		
+
 		for (i = 0; i < p.length; i++) {
 			JSONObject obj = new JSONObject();
-			
+
 			try {
 				obj.put("name", p[i].getName());
 				obj.put("WPM", getPlayerWPM(p[i].getName()));
 				obj.put("accuracy", getPlayerAccuracy(p[i].getName()));
 				obj.put("timeLeft", getTimeLeft());
-				
+
 				String jsonText = obj.toString();
-				
+
 				System.out.println("JSON: " + jsonText);
-				
+
 				p[0].sendData("JSON DATA: " + jsonText);
 				p[1].sendData("JSON DATA: " + jsonText);
 			} catch (JSONException | IOException e) {
@@ -173,7 +173,6 @@ public class Game {
 			}
 		}
 	}
-
 
 	public void sendWordList() {
 		for (Entry<String, ClientHandler> c : this.players.entrySet()) {
@@ -255,14 +254,14 @@ public class Game {
 
 		float accuracyCalc = ((userInput.length() - wrongIndexCharCount) / (float) userInput.length()) * 100f;
 		accuracyCalc = Math.max(accuracyCalc, 0);
-		
+
 		Math.round(accuracyCalc);
 		Math.round(netWPM);
-		
+
 		this.playerStats.get(playerName).add(0, Float.toString(netWPM));
 		this.playerStats.get(playerName).add(1, Float.toString(accuracyCalc));
 	}
-	
+
 	public boolean playersAreReady() {
 		for (Entry<String, ClientHandler> c : this.players.entrySet()) {
 			if (!c.getValue().isReady()) {
@@ -272,7 +271,11 @@ public class Game {
 		}
 		return true;
 	}
-	
+
+	public boolean isGameStarted() {
+		return this.gameStarted;
+	}
+
 	public int getGameId() {
 		return this.id;
 	}

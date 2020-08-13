@@ -8,13 +8,12 @@ public class GameManager implements Runnable {
 	final long SEND_DATA_INTERVAL = 5000;
 
 	long lastSentTime = 0;
-	
+
 	@Override
 	public void run() {
 		while (true) {
-			checkIfNewPlayersAreReady();
-			
 			if (MatchMakingService.activeGameSessions.size() > 0) {
+				checkIfNewPlayersAreReady();
 				decreaseTimers();
 
 				if (System.currentTimeMillis() - lastSentTime >= SEND_DATA_INTERVAL) {
@@ -31,28 +30,28 @@ public class GameManager implements Runnable {
 			}
 		}
 	}
-	
+
 	public void checkIfNewPlayersAreReady() {
-		for (int i = 0; i < MatchMakingService.activeGameSessions.size(); i++) {
-			if (!MatchMakingService.activeGameSessions.get(i).gameStarted && MatchMakingService.activeGameSessions.get(i).playersAreReady()) {
-				MatchMakingService.activeGameSessions.get(i).notifyClientsGameStarted();
+		for (Entry<Integer, Game> g : MatchMakingService.activeGameSessions.entrySet()) {
+			if (!g.getValue().isGameStarted() && g.getValue().playersAreReady()) {
+				g.getValue().notifyClientsGameStarted();
 			}
 		}
 	}
 
 	public void decreaseTimers() {
 		Iterator<Entry<Integer, Game>> iter = MatchMakingService.activeGameSessions.entrySet().iterator();
-		
+
 		while (iter.hasNext()) {
 			Entry<Integer, Game> g = iter.next();
-			
-			if (g.getValue().gameStarted) {
+
+			if (g.getValue().isGameStarted()) {
 				g.getValue().decreaseTimer();
-				
+
 				if (g.getValue().isGameDone()) {
 					System.out.println("Game session has been completed and removed from active games, ID: "
 							+ g.getValue().getGameId());
-					//MatchMakingService.activeGameSessions.remove(g.getKey());
+					// MatchMakingService.activeGameSessions.remove(g.getKey());
 					iter.remove();
 				}
 			}
@@ -61,7 +60,7 @@ public class GameManager implements Runnable {
 
 	public void updateClientData() {
 		for (Entry<Integer, Game> g : MatchMakingService.activeGameSessions.entrySet()) {
-			if (g.getValue().gameStarted)
+			if (g.getValue().isGameStarted())
 				g.getValue().updateClientData();
 		}
 	}
