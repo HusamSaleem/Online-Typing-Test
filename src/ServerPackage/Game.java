@@ -50,15 +50,15 @@ public class Game {
 		this.gameStarted = false;
 		this.timeLeft = 60;
 
-		this.id = Server.db.createGameSess(players.get(0).getName(), players.get(1).getName());
+		this.id = Server.db.createGameSess(playerList.get(0).getName(), playerList.get(1).getName());
 
 		if (this.id != -1) {  
 			System.out.println("Game ID: " + this.id + " Successfully created the game session... Players: {"
-					+ players.get(0).getName() + ", " + players.get(1).getName() + "}");
+					+ playerList.get(0).getName() + ", " + playerList.get(1).getName() + "}");
 
 			// Easy
 			if (difficulty == 1) {
-				startGame("easyWords.txt", players.get(0).getName(), players.get(1).getName());
+				startGame("easyWords.txt", playerList.get(0).getName(), playerList.get(1).getName());
 			}
 		} else {
 			System.out.println("Failed to create the game session");
