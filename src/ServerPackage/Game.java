@@ -35,13 +35,13 @@ public class Game {
 	// In Seconds...
 	private int timeLeft;
 
-	public Game(ArrayList<ClientHandler> players, int difficulty) {
+	public Game(ArrayList<ClientHandler> playerList, int difficulty) {
 		this.players = new HashMap<String, ClientHandler>();
 		this.playerStats = new HashMap<String, ArrayList<String>>();
 		this.playerNames = new ArrayList<String>();
 		this.difficulty = difficulty;
 
-		setMaps(players);
+		setMaps(playerList);
 
 		this.wordList = new ArrayList<String>();
 		this.wordListAsString = "";
@@ -74,23 +74,15 @@ public class Game {
 		sendTimeDelay(TIME_DELAY_BEFORE_GAME_START);
 	}
 
-	private void setMaps(ArrayList<ClientHandler> players) {
+	private void setMaps(ArrayList<ClientHandler> playerList) {
 		
-		for (ClientHandler c : players) {
+		for (ClientHandler c : playerList) {
 			ArrayList<String> emptyList = new ArrayList<String>();
-			
+			System.out.println(c);
 			this.players.put(c.getName(), c);
 			this.playerStats.put(c.getName(), emptyList);
 			this.playerNames.add(c.getName());
 		}
-		
-//		Iterator<ClientHandler> iter = players.iterator();
-//
-//		while (iter.hasNext()) {
-//			ClientHandler c = iter.next();
-//			this.players.put(c.getName(), c);
-//			this.playerStats.put(c.getName(), new ArrayList<String>());
-//		}
 	}
 
 	private void setPlayerGameIds(String player1Name, String player2Name) {
@@ -278,7 +270,6 @@ public class Game {
 				return false;
 			}
 		}
-		notifyClientsGameStarted();
 		return true;
 	}
 	
