@@ -130,6 +130,7 @@ public class Game {
 	}
 
 	public void notifyClientsGameStarted() {
+		sendWordList();
 		for (Entry<String, ClientHandler> c : players.entrySet()) {
 			try {
 				c.getValue().sendData("Game Started");
@@ -138,8 +139,6 @@ public class Game {
 				e.printStackTrace();
 			}
 		}
-
-		sendWordList();
 		this.gameStarted = true;
 	}
 

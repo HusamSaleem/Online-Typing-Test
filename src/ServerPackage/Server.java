@@ -1,4 +1,5 @@
 package ServerPackage;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -11,15 +12,15 @@ public class Server {
 	public static ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
 	ServerSocket serverSocket;
 	private static int port = 5014;
-	
+
 	private int proc_ID_Counter = 1;
 
 	public static ExecutorService threadPool;
-	
+
 	public static MysqlConn db;
-	
+
 	public static MatchMakingService mmService;
-	
+
 	public Server(int port, int poolSize) throws IOException {
 		this.serverSocket = new ServerSocket(port);
 		threadPool = Executors.newFixedThreadPool(poolSize);
@@ -34,7 +35,7 @@ public class Server {
 		// Close all sockets when java program is terminated
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
-				server.shutDown(); 
+				server.shutDown();
 			}
 		});
 	}
@@ -48,19 +49,23 @@ public class Server {
 		// A thread to handle the thread pool and the client's tasks
 		Thread thread = new Thread(new ThreadHandlers());
 		thread.start();
-		
+
 		// A thread to handle the pinging to the clients every minute or so
 		Thread thread2 = new Thread(new PingHandler());
 		thread2.start();
-		
-		//Thread to listen for scanner requests
+
+		// Thread to listen for scanner requests
 		Thread thread3 = new Thread(new CmdListener());
 		thread3.start();
-		
-		//Thread to handle game sessions...
+
+		// Thread to handle game sessions...
 		Thread thread4 = new Thread(new GameManager());
 		thread4.start();
-		
+
+		// Thread to handle the matchmaking service
+		Thread thread5 = new Thread(new MatchMakingManager());
+		thread5.start();
+
 		while (true) {
 			// Accepts any connections
 			Socket clientSocket = serverSocket.accept();

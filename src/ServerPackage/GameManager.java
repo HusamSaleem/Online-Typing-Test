@@ -12,8 +12,9 @@ public class GameManager implements Runnable {
 	@Override
 	public void run() {
 		while (true) {
+			checkIfNewPlayersAreReady();
+			
 			if (MatchMakingService.activeGameSessions.size() > 0) {
-				checkIfNewPlayersAreReady();
 				decreaseTimers();
 
 				if (System.currentTimeMillis() - lastSentTime >= SEND_DATA_INTERVAL) {
