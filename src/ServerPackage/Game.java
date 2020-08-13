@@ -71,15 +71,16 @@ public class Game {
 		readFromFile(fileName);
 		shuffleWords();
 		this.wordListAsString = getWordsAsString();
-		sendWordList();
 		sendTimeDelay(TIME_DELAY_BEFORE_GAME_START);
 	}
 
 	private void setMaps(ArrayList<ClientHandler> players) {
 		
 		for (ClientHandler c : players) {
+			ArrayList<String> emptyList = new ArrayList<String>();
+			
 			this.players.put(c.getName(), c);
-			this.playerStats.put(c.getName(), new ArrayList<String>());
+			this.playerStats.put(c.getName(), emptyList);
 			this.playerNames.add(c.getName());
 		}
 		
@@ -146,6 +147,7 @@ public class Game {
 			}
 		}
 		
+		sendWordList();
 		this.gameStarted = true;
 	}
 	
