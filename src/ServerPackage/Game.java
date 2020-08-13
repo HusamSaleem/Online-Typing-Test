@@ -16,12 +16,14 @@ import org.json.JSONObject;
 public class Game {
 
 	private final int MAX_WORDS = 100;
+	private final int TIME_DELAY_BEFORE_GAME_START = 5;
 
 	private int id;
 	private final int difficulty;
 	private HashMap<String, ClientHandler> players;
 	// Array list, WPM = index 0, Accuracy = index 1
 	private HashMap<String, ArrayList<String>> playerStats;
+	private ArrayList<String> playerNames;
 
 	private ArrayList<String> wordList;
 	private String wordListAsString;
@@ -36,6 +38,7 @@ public class Game {
 	public Game(ArrayList<ClientHandler> players, int difficulty) {
 		this.players = new HashMap<String, ClientHandler>();
 		this.playerStats = new HashMap<String, ArrayList<String>>();
+		this.playerNames = new ArrayList<String>();
 		this.difficulty = difficulty;
 
 		setMaps(players);
@@ -60,16 +63,33 @@ public class Game {
 		} else {
 			System.out.println("Failed to create the game session");
 		}
+		
+	}
+
+	public void startGame(String fileName, String player1Name, String player2Name) {
+		setPlayerGameIds(player1Name, player2Name);
+		readFromFile(fileName);
+		shuffleWords();
+		this.wordListAsString = getWordsAsString();
+		sendWordList();
+		sendTimeDelay(TIME_DELAY_BEFORE_GAME_START);
 	}
 
 	private void setMaps(ArrayList<ClientHandler> players) {
-		Iterator<ClientHandler> iter = players.iterator();
-
-		while (iter.hasNext()) {
-			ClientHandler c = iter.next();
+		
+		for (ClientHandler c : players) {
 			this.players.put(c.getName(), c);
 			this.playerStats.put(c.getName(), new ArrayList<String>());
+			this.playerNames.add(c.getName());
 		}
+		
+//		Iterator<ClientHandler> iter = players.iterator();
+//
+//		while (iter.hasNext()) {
+//			ClientHandler c = iter.next();
+//			this.players.put(c.getName(), c);
+//			this.playerStats.put(c.getName(), new ArrayList<String>());
+//		}
 	}
 
 	private void setPlayerGameIds(String player1Name, String player2Name) {
@@ -82,11 +102,16 @@ public class Game {
 
 		if (this.timeLeft <= 0) {
 			this.isFinished = true;
+			updateDatabase();
 			resetClientGameInfo();
 			this.timeLeft = 0;
 		}
 	}
-
+	
+	private void updateDatabase() {
+		Server.db.updateGameInfo(this.id, this.playerStats, this.playerNames);
+	}
+	
 	private void resetClientGameInfo() {
 		for (Entry<String, ClientHandler> c : players.entrySet()) {
 			try {
@@ -98,7 +123,32 @@ public class Game {
 			}
 		}
 	}
+	
+	// Time in seconds
+	public void sendTimeDelay(int time) {
+		for (Entry<String, ClientHandler> c : players.entrySet()) {
+			try {
+				c.getValue().sendData("Game will start in (seconds): " + time);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 
+	public void notifyClientsGameStarted() {
+		for (Entry<String, ClientHandler> c : players.entrySet()) {
+			try {
+				c.getValue().sendData("Game Started");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		this.gameStarted = true;
+	}
+	
 	public void updateClientData() {
 		ClientHandler[] p = new ClientHandler[2];
 		int i = 0;
@@ -130,58 +180,6 @@ public class Game {
 		}
 	}
 
-	public void startGame(String fileName, String player1Name, String player2Name) {
-		setPlayerGameIds(player1Name, player2Name);
-		readFromFile(fileName);
-		shuffleWords();
-		this.wordListAsString = getWordsAsString();
-		sendWordList();
-		notifyClientsGameStarted();
-		this.gameStarted = true;
-	}
-
-	public void notifyClientsGameStarted() {
-		for (Entry<String, ClientHandler> c : players.entrySet()) {
-			try {
-				c.getValue().sendData("Game Started");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-
-	public int getGameId() {
-		return this.id;
-	}
-
-	public int getTimeLeft() {
-		return this.timeLeft;
-	}
-
-	public void finishGame() {
-		this.isFinished = true;
-	}
-
-	public String getPlayerWPM(String playerName) {
-		return playerStats.get(playerName).get(0);
-	}
-
-	public String getPlayerAccuracy(String playerName) {
-		return playerStats.get(playerName).get(1);
-	}
-
-	public void setPlayerWPM(String playerName, String wpm) {
-		playerStats.get(playerName).set(0, wpm);
-	}
-
-	public void setPlayerAccuracy(String playerName, String accuracy) {
-		playerStats.get(playerName).set(1, accuracy);
-	}
-
-	public boolean isGameDone() {
-		return this.isFinished;
-	}
 
 	public void sendWordList() {
 		for (Entry<String, ClientHandler> c : this.players.entrySet()) {
@@ -263,7 +261,54 @@ public class Game {
 
 		float accuracyCalc = ((userInput.length() - wrongIndexCharCount) / (float) userInput.length()) * 100f;
 		accuracyCalc = Math.max(accuracyCalc, 0);
+		
+		Math.round(accuracyCalc);
+		Math.round(netWPM);
+		
 		this.playerStats.get(playerName).add(0, Float.toString(netWPM));
 		this.playerStats.get(playerName).add(1, Float.toString(accuracyCalc));
+	}
+	
+	public boolean playersAreReady() {
+		for (Entry<String, ClientHandler> c : this.players.entrySet()) {
+			if (!c.getValue().isReady()) {
+				System.out.println("Player: " + c.getKey() + " is not ready yet");
+				return false;
+			}
+		}
+		notifyClientsGameStarted();
+		return true;
+	}
+	
+	public int getGameId() {
+		return this.id;
+	}
+
+	public int getTimeLeft() {
+		return this.timeLeft;
+	}
+
+	public void finishGame() {
+		this.isFinished = true;
+	}
+
+	public String getPlayerWPM(String playerName) {
+		return playerStats.get(playerName).get(0);
+	}
+
+	public String getPlayerAccuracy(String playerName) {
+		return playerStats.get(playerName).get(1);
+	}
+
+	public void setPlayerWPM(String playerName, String wpm) {
+		playerStats.get(playerName).set(0, wpm);
+	}
+
+	public void setPlayerAccuracy(String playerName, String accuracy) {
+		playerStats.get(playerName).set(1, accuracy);
+	}
+
+	public boolean isGameDone() {
+		return this.isFinished;
 	}
 }

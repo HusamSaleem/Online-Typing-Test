@@ -11,6 +11,7 @@ public class ClientHandler implements Runnable {
 	
 	private int curGameID = -1;
 	private String playerName;
+	private boolean ready;
 
 	private int retryConnections;
 	private boolean isConnected;
@@ -21,6 +22,7 @@ public class ClientHandler implements Runnable {
 	public ClientHandler(Socket S, String PROC_ID) {
 		this.S = S;
 		this.PROC_ID = PROC_ID;
+		this.ready = false;
 		this.setCurrentInput("");
 
 		this.retryConnections = 0;
@@ -128,6 +130,8 @@ public class ClientHandler implements Runnable {
 					Server.mmService.addPlayerToQueue(this);
 					System.out.println(getName() + " has been added to the queue");
 					sendData("Added to the queue");
+				} else if (d.equals("Ready")) {
+					this.ready = true;
 				}
 			}
 		}
@@ -177,5 +181,13 @@ public class ClientHandler implements Runnable {
 
 	public void setCurrentInput(String currentInput) {
 		this.currentInput = currentInput;
+	}
+
+	public boolean isReady() {
+		return ready;
+	}
+
+	public void setReady(boolean ready) {
+		this.ready = ready;
 	}
 }

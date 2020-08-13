@@ -1,5 +1,6 @@
 package ServerPackage;
 
+import java.util.Iterator;
 import java.util.Map.Entry;
 
 public class GameManager implements Runnable {
@@ -30,24 +31,41 @@ public class GameManager implements Runnable {
 	}
 
 	public void decreaseTimers() {
-		for (Entry<Integer, Game> g : MatchMakingService.activeGameSessions.entrySet()) {
-
-			if (g.getValue().gameStarted) {
+		Iterator<Entry<Integer, Game>> iter = MatchMakingService.activeGameSessions.entrySet().iterator();
+		
+		while (iter.hasNext()) {
+			Entry<Integer, Game> g = iter.next();
+			
+			if (g.getValue().gameStarted && g.getValue().playersAreReady()) {
 				g.getValue().decreaseTimer();
-
+				
 				if (g.getValue().isGameDone()) {
 					System.out.println("Game session has been completed and removed from active games, ID: "
 							+ g.getValue().getGameId());
-					MatchMakingService.activeGameSessions.remove(g.getKey());
+					//MatchMakingService.activeGameSessions.remove(g.getKey());
+					iter.remove();
 				}
-
 			}
 		}
+		
+//		for (Entry<Integer, Game> g : MatchMakingService.activeGameSessions.entrySet()) {
+//
+//			if (g.getValue().gameStarted) {
+//				g.getValue().decreaseTimer();
+//
+//				if (g.getValue().isGameDone()) {
+//					System.out.println("Game session has been completed and removed from active games, ID: "
+//							+ g.getValue().getGameId());
+//					MatchMakingService.activeGameSessions.remove(g.getKey());
+//				}
+//
+//			}
+//		}
 	}
 
 	public void updateClientData() {
 		for (Entry<Integer, Game> g : MatchMakingService.activeGameSessions.entrySet()) {
-			if (g.getValue().gameStarted)
+			if (g.getValue().gameStarted && g.getValue().playersAreReady())
 				g.getValue().updateClientData();
 		}
 	}
