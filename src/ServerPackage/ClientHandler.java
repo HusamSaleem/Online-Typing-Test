@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class ClientHandler implements Runnable {
 	public final Socket S;
 	public final String PROC_ID;
-	
+
 	private int curGameID = -1;
 	private String playerName;
 	private boolean ready;
@@ -16,7 +16,7 @@ public class ClientHandler implements Runnable {
 	private int retryConnections;
 	private boolean isConnected;
 	private long lastPinged;
-	
+
 	private String currentInput;
 
 	public ClientHandler(Socket S, String PROC_ID) {
@@ -125,7 +125,8 @@ public class ClientHandler implements Runnable {
 						sendData("Register Failure");
 					}
 				} else if (d.contains("Input Update: ")) {
-					setCurrentInput(d.substring(14));
+					if (this.curGameID != -1)
+						setCurrentInput(d.substring(14));
 				} else if (d.equals("Join 2 player easy queue")) {
 					Server.mmService.addPlayerToQueue(this);
 					System.out.println(getName() + " has been added to the queue");

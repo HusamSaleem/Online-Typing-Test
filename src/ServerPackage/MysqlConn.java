@@ -110,24 +110,25 @@ public class MysqlConn {
 		return -1;
 	}
 
-	public boolean updateGameInfo(int id, HashMap<String, ArrayList<String>> playerStats, ArrayList<String> playerNames) {
+	public boolean updateGameInfo(int id, HashMap<String, ArrayList<String>> playerStats,
+			ArrayList<String> playerNames) {
 		try {
 			String sql = "UPDATE 2PlayerGames SET " + "Player_One_WPM = ?, " + "Player_Two_WPM = ?, "
 					+ "Player_One_Accuracy = ?, " + "Player_Two_Accuracy = ? " + "WHERE Game_ID = ?";
 			PreparedStatement statement = dbConn.prepareStatement(sql);
-			
+
 			// WPM
-			statement.setInt(1, Integer.parseInt(playerStats.get(playerNames.get(0)).get(0)));
-			statement.setInt(2, Integer.parseInt(playerStats.get(playerNames.get(1)).get(0)));
-			
+			statement.setInt(1, Math.round(Integer.parseInt(playerStats.get(playerNames.get(0)).get(0))));
+			statement.setInt(2, Math.round(Integer.parseInt(playerStats.get(playerNames.get(1)).get(0))));
+
 			// Accuracy
-			statement.setInt(3, Integer.parseInt(playerStats.get(playerNames.get(0)).get(1)));
-			statement.setInt(4, Integer.parseInt(playerStats.get(playerNames.get(1)).get(1)));
-			
+			statement.setInt(3, Math.round(Integer.parseInt(playerStats.get(playerNames.get(0)).get(1))));
+			statement.setInt(4, Math.round(Integer.parseInt(playerStats.get(playerNames.get(1)).get(1))));
+
 			statement.setInt(5, id);
-			
+
 			int result = statement.executeUpdate();
-			
+
 			if (result == 1) {
 				System.out.println("Successfully updated the stats of Game_ID: " + id);
 				return true;

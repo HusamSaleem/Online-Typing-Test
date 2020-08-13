@@ -254,8 +254,8 @@ public class Game {
 		float accuracyCalc = ((userInput.length() - wrongIndexCharCount) / (float) userInput.length()) * 100f;
 		accuracyCalc = Math.max(accuracyCalc, 0);
 
-		Math.round(accuracyCalc);
-		Math.round(netWPM);
+		accuracyCalc = Math.round(accuracyCalc);
+		netWPM = Math.round(netWPM);
 
 		this.playerStats.get(playerName).add(0, Float.toString(netWPM));
 		this.playerStats.get(playerName).add(1, Float.toString(accuracyCalc));
