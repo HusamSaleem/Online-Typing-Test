@@ -3,6 +3,7 @@ package ServerPackage;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class ClientHandler implements Runnable {
 	public final Socket S;

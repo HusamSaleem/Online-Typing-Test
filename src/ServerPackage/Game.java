@@ -9,6 +9,9 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Scanner;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Game {
 
@@ -24,7 +27,7 @@ public class Game {
 	private String wordListAsString;
 
 	private boolean isFinished;
-	
+
 	public boolean gameStarted;
 
 	// In Seconds...
@@ -61,7 +64,7 @@ public class Game {
 
 	private void setMaps(ArrayList<ClientHandler> players) {
 		Iterator<ClientHandler> iter = players.iterator();
-		
+
 		while (iter.hasNext()) {
 			ClientHandler c = iter.next();
 			this.players.put(c.getName(), c);
@@ -83,7 +86,7 @@ public class Game {
 			this.timeLeft = 0;
 		}
 	}
-	
+
 	private void resetClientGameInfo() {
 		for (Entry<String, ClientHandler> c : players.entrySet()) {
 			try {
@@ -95,18 +98,25 @@ public class Game {
 			}
 		}
 	}
-	
+
 	public void updateClientData() {
 		for (Entry<String, ClientHandler> c : players.entrySet()) {
 			updateStats(c.getKey());
-			
+
 			for (Entry<String, ClientHandler> c1 : players.entrySet()) {
 				try {
-					c1.getValue().sendData("Name: " + c.getValue().getName());
-					c1.getValue().sendData("WPM: " + getPlayerWPM(c.getKey()));
-					c1.getValue().sendData("Accuracy: " + getPlayerAccuracy(c.getKey()));
-					c1.getValue().sendData("Time Left: " + getTimeLeft()); 
-				} catch (IOException e) {
+					JSONObject obj = new JSONObject();
+
+					obj.put("name", c.getKey());
+					obj.put("WPM", getPlayerWPM(c.getKey()));
+					obj.put("accuracy", getPlayerAccuracy(c.getKey()));
+					obj.put("timeLeft", getTimeLeft());
+
+					String jsonText = obj.toString();
+
+					System.out.println("JSON: " + jsonText);
+					c1.getValue().sendData("JSON DATA: " + jsonText);
+				} catch (IOException | JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -123,7 +133,7 @@ public class Game {
 		notifyClientsGameStarted();
 		this.gameStarted = true;
 	}
-	
+
 	public void notifyClientsGameStarted() {
 		for (Entry<String, ClientHandler> c : players.entrySet()) {
 			try {
@@ -162,11 +172,11 @@ public class Game {
 	public void setPlayerAccuracy(String playerName, String accuracy) {
 		playerStats.get(playerName).set(1, accuracy);
 	}
-	
+
 	public boolean isGameDone() {
 		return this.isFinished;
 	}
-	
+
 	public void sendWordList() {
 		for (Entry<String, ClientHandler> c : this.players.entrySet()) {
 			try {
@@ -244,7 +254,7 @@ public class Game {
 
 		if (netWPM < 0)
 			netWPM = 0;
-		
+
 		float accuracyCalc = ((userInput.length() - wrongIndexCharCount) / (float) userInput.length()) * 100f;
 		this.playerStats.get(playerName).add(0, Float.toString(netWPM));
 		this.playerStats.get(playerName).add(1, Float.toString(accuracyCalc));
