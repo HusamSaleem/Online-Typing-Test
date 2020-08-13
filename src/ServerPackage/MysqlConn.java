@@ -118,12 +118,12 @@ public class MysqlConn {
 			PreparedStatement statement = dbConn.prepareStatement(sql);
 
 			// WPM
-			statement.setInt(1, Math.round(Integer.parseInt(playerStats.get(playerNames.get(0)).get(0))));
-			statement.setInt(2, Math.round(Integer.parseInt(playerStats.get(playerNames.get(1)).get(0))));
+			statement.setInt(1, (int) Math.round(Integer.parseInt(playerStats.get(playerNames.get(0)).get(0))));
+			statement.setInt(2, (int) Math.round(Integer.parseInt(playerStats.get(playerNames.get(1)).get(0))));
 
 			// Accuracy
-			statement.setInt(3, Math.round(Integer.parseInt(playerStats.get(playerNames.get(0)).get(1))));
-			statement.setInt(4, Math.round(Integer.parseInt(playerStats.get(playerNames.get(1)).get(1))));
+			statement.setInt(3, (int) Math.round(Integer.parseInt(playerStats.get(playerNames.get(0)).get(1))));
+			statement.setInt(4, (int) Math.round(Integer.parseInt(playerStats.get(playerNames.get(1)).get(1))));
 
 			statement.setInt(5, id);
 
