@@ -262,6 +262,7 @@ public class Game {
 			netWPM = 0;
 
 		float accuracyCalc = ((userInput.length() - wrongIndexCharCount) / (float) userInput.length()) * 100f;
+		accuracyCalc = Math.max(accuracyCalc, 0);
 		this.playerStats.get(playerName).add(0, Float.toString(netWPM));
 		this.playerStats.get(playerName).add(1, Float.toString(accuracyCalc));
 	}
