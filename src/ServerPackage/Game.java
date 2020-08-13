@@ -105,6 +105,7 @@ public class Game {
 		for (Entry<String, ClientHandler> c : players.entrySet()) {
 			updateStats(c.getKey());
 			p[i] = c.getValue();
+			i++;
 		}
 		
 		for (i = 0; i < p.length; i++) {
