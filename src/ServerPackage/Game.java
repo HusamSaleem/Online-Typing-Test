@@ -52,7 +52,7 @@ public class Game {
 
 		this.id = Server.db.createGameSess(players.get(0).getName(), players.get(1).getName());
 
-		if (this.id != -1) { 
+		if (this.id != -1) {  
 			System.out.println("Game ID: " + this.id + " Successfully created the game session... Players: {"
 					+ players.get(0).getName() + ", " + players.get(1).getName() + "}");
 
