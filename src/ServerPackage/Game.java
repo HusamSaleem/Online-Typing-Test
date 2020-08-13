@@ -100,26 +100,31 @@ public class Game {
 	}
 
 	public void updateClientData() {
+		ClientHandler[] p = new ClientHandler[2];
+		int i = 0;
 		for (Entry<String, ClientHandler> c : players.entrySet()) {
 			updateStats(c.getKey());
-
-			for (Entry<String, ClientHandler> c1 : players.entrySet()) {
-				try {
-					JSONObject obj = new JSONObject();
-
-					obj.put("name", c.getKey());
-					obj.put("WPM", getPlayerWPM(c.getKey()));
-					obj.put("accuracy", getPlayerAccuracy(c.getKey()));
-					obj.put("timeLeft", getTimeLeft());
-
-					String jsonText = obj.toString();
-
-					System.out.println("JSON: " + jsonText);
-					c1.getValue().sendData("JSON DATA: " + jsonText);
-				} catch (IOException | JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			p[i] = c.getValue();
+		}
+		
+		for (i = 0; i < p.length; i++) {
+			JSONObject obj = new JSONObject();
+			
+			try {
+				obj.put("name", p[i].getName());
+				obj.put("WPM", getPlayerWPM(p[i].getName()));
+				obj.put("accuracy", getPlayerAccuracy(p[i].getName()));
+				obj.put("timeLeft", getTimeLeft());
+				
+				String jsonText = obj.toString();
+				
+				System.out.println("JSON: " + jsonText);
+				
+				p[0].sendData("JSON DATA: " + jsonText);
+				p[1].sendData("JSON DATA: " + jsonText);
+			} catch (JSONException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
