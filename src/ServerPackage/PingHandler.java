@@ -16,6 +16,12 @@ public class PingHandler implements Runnable {
 
 			while (iter.hasNext()) {
 				ClientHandler client = iter.next();
+				
+				if (!client.isConnected()) {
+					System.out.println("Client has been removed: " + client.S.toString());
+					iter.remove();
+					continue;
+				}
 
 				try {
 					client.sendData("Ping!");
@@ -24,7 +30,7 @@ public class PingHandler implements Runnable {
 					e.printStackTrace();
 				}
 
-				if (System.currentTimeMillis() - client.getLastPingTime() > PING_INTERVAL || !client.isConnected()) {
+				if (System.currentTimeMillis() - client.getLastPingTime() > PING_INTERVAL) {
 					client.increaseRetryCount();
 
 					if (!client.keepAlive() || !client.isConnected()) {
