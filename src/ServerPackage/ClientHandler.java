@@ -133,7 +133,6 @@ public class ClientHandler implements Runnable {
 
 					System.out.println(getName() + " has been added to the " + difficulty + " level queue");
 					sendData("Added to the queue");
-
 				} else if (d.equals("Ready")) {
 					this.ready = true;
 
@@ -151,7 +150,7 @@ public class ClientHandler implements Runnable {
 		}
 	}
 
-	private void sendConnectionInfo() {
+	public void sendConnectionInfo() {
 		JSONObject obj = new JSONObject();
 
 		try {

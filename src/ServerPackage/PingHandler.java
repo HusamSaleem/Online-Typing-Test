@@ -40,6 +40,8 @@ public class PingHandler implements Runnable {
 					}
 
 				}
+				
+				client.sendConnectionInfo();
 			}
 
 			System.out.println("Finished pinging clients...");

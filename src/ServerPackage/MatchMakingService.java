@@ -57,8 +57,12 @@ public class MatchMakingService {
 				activeGameSessions.put(game.getGameId(), game);
 			} else {
 				if (alivePlayers == 0) {
+					System.out.println(
+							"Removed player from the Queue for inactivity: " + players.get(alivePlayers + 1).getName());
 					queue.add(players.get(alivePlayers + 1));
 				} else if (alivePlayers == 1) {
+					System.out.println(
+							"Removed player from the Queue for inactivity: " + players.get(alivePlayers - 1).getName());
 					queue.add(players.get(alivePlayers - 1));
 				}
 			}
