@@ -87,8 +87,8 @@ public class MatchMakingService {
 				}
 
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println(e.getMessage());
+				return i;
 			}
 		}
 		return -1;
