@@ -96,7 +96,7 @@ public class CmdListener implements Runnable {
 
 		for (ClientHandler c : Server.clients) {
 			try {
-				c.sendData(msg);
+				c.sendData("Server Msg: " + msg);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
