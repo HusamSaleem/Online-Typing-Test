@@ -12,8 +12,6 @@ public class GameManager implements Runnable {
 	@Override
 	public void run() {
 		while (true) {
-			checkIfNewPlayersAreReady();
-			
 			if (MatchMakingService.activeGameSessions.size() > 0) {
 				decreaseTimers();
 
@@ -22,7 +20,8 @@ public class GameManager implements Runnable {
 					updateClientData();
 				}
 			}
-
+			
+			checkIfNewPlayersAreReady();
 			try {
 				Thread.sleep(SLEEP_INTERVAL);
 			} catch (InterruptedException e) {

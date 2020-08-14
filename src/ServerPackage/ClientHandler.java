@@ -17,13 +17,15 @@ public class ClientHandler implements Runnable {
 	private boolean ready;
 
 	private int retryConnections;
+	private boolean isConnected;
 	private long lastPinged;
-
+	
 	private String currentInput;
 
 	public ClientHandler(Socket S, String PROC_ID) {
 		this.S = S;
 		this.PROC_ID = PROC_ID;
+		this.isConnected = true;
 
 		this.ready = false;
 		this.setCurrentInput("");
@@ -140,8 +142,7 @@ public class ClientHandler implements Runnable {
 					sendConnectionInfo();
 
 				} else if (d.equals("Close This Connection")) {
-					System.out.println("Client has been closed on request: " + S.toString());
-					this.S.close();
+					this.isConnected = false;
 
 				} else if (d.equals("I am alive")) {
 					this.lastPinged = System.currentTimeMillis();
@@ -214,5 +215,9 @@ public class ClientHandler implements Runnable {
 
 	public void setReady(boolean ready) {
 		this.ready = ready;
+	}
+
+	public boolean isConnected() {
+		return isConnected;
 	}
 }

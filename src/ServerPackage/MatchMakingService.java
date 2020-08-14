@@ -50,20 +50,20 @@ public class MatchMakingService {
 				return;
 			}
 
-			int alivePlayers = checkIfPlayersAreAlive(players);
+			int inactivePlayerIndex = checkIfPlayersAreAlive(players);
 
-			if (alivePlayers == -1) {
+			if (inactivePlayerIndex == -1) {
 				Game game = new Game(players, difficulty);
 				activeGameSessions.put(game.getGameId(), game);
 			} else {
-				if (alivePlayers == 0) {
+				if (inactivePlayerIndex == 0) {
 					System.out.println(
-							"Removed player from the Queue for inactivity: " + players.get(alivePlayers + 1).getName());
-					queue.add(players.get(alivePlayers + 1));
-				} else if (alivePlayers == 1) {
+							"Removed player from the Queue for inactivity: " + players.get(inactivePlayerIndex + 1).getName());
+					queue.add(players.get(inactivePlayerIndex + 1));
+				} else if (inactivePlayerIndex == 1) {
 					System.out.println(
-							"Removed player from the Queue for inactivity: " + players.get(alivePlayers - 1).getName());
-					queue.add(players.get(alivePlayers - 1));
+							"Removed player from the Queue for inactivity: " + players.get(inactivePlayerIndex - 1).getName());
+					queue.add(players.get(inactivePlayerIndex - 1));
 				}
 			}
 		}
@@ -73,6 +73,9 @@ public class MatchMakingService {
 		final int DATA_THRESHOLD = 2000;
 
 		for (int i = 0; i < players.size(); i++) {
+			if (!players.get(i).isConnected())
+				return i;
+			
 			try {
 				players.get(i).sendData("Are you alive?");
 				

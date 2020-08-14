@@ -15,6 +15,7 @@ public class Game {
 
 	private final int MAX_WORDS = 100;
 	private final int TIME_DELAY_BEFORE_GAME_START = 5;
+	private final int TIME_PER_GAME = 60;
 
 	private int id;
 	private final int difficulty;
@@ -46,7 +47,7 @@ public class Game {
 
 		this.isFinished = false;
 		this.gameStarted = false;
-		this.timeLeft = 60;
+		this.timeLeft = TIME_PER_GAME;
 
 		this.id = Server.db.createGameSess(playerList.get(0).getName(), playerList.get(1).getName());
 

@@ -18,32 +18,28 @@ public class PingHandler implements Runnable {
 				ClientHandler client = iter.next();
 
 				try {
-					if (!client.S.isClosed())
-						client.sendData("Ping!");
-				} catch (IOException e) {
+					client.sendData("Ping!");
+					Thread.sleep(500);
+				} catch (IOException | InterruptedException e) {
 					e.printStackTrace();
 				}
 
-				if (System.currentTimeMillis() - client.getLastPingTime() > PING_INTERVAL && !client.S.isClosed()) {
+				if (System.currentTimeMillis() - client.getLastPingTime() > PING_INTERVAL) {
 					client.increaseRetryCount();
 
-					if (!client.keepAlive()) {
+					if (!client.keepAlive() || !client.isConnected()) {
 						System.out.println("Client has been removed: " + client.S.toString());
 
 						try {
-							if (!client.S.isClosed())
-								client.S.close();
+							client.S.close();
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
 						iter.remove();
 					}
+				} else {
+					client.sendConnectionInfo();
 				}
-
-				if (client.S.isClosed())
-					iter.remove();
-
-				client.sendConnectionInfo();
 			}
 
 			System.out.println("Finished pinging clients...");
