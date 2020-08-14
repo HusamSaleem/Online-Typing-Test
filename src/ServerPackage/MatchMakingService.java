@@ -82,7 +82,7 @@ public class MatchMakingService {
 					e.printStackTrace();
 				}
 
-				if (System.currentTimeMillis() - players.get(i).getLastPingTime() > DATA_THRESHOLD) {
+				if (System.currentTimeMillis() - players.get(i).getLastPingTime() > DATA_THRESHOLD * 2 + 500) {
 					return i;
 				}
 
