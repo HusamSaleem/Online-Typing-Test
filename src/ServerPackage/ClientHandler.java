@@ -43,7 +43,7 @@ public class ClientHandler implements Runnable {
 	@Override
 	public void run() {
 		try {
-			if (!S.isClosed())
+			if (this.isConnected)
 				processData();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -194,7 +194,7 @@ public class ClientHandler implements Runnable {
 	}
 
 	public int getCurGameID() {
-		return curGameID;
+		return this.curGameID;
 	}
 
 	public void setCurGameID(int curGameID) {
@@ -202,7 +202,7 @@ public class ClientHandler implements Runnable {
 	}
 
 	public String getCurrentInput() {
-		return currentInput;
+		return this.currentInput;
 	}
 
 	public void setCurrentInput(String currentInput) {
@@ -210,7 +210,7 @@ public class ClientHandler implements Runnable {
 	}
 
 	public boolean isReady() {
-		return ready;
+		return this.ready;
 	}
 
 	public void setReady(boolean ready) {
@@ -218,6 +218,6 @@ public class ClientHandler implements Runnable {
 	}
 
 	public boolean isConnected() {
-		return isConnected;
+		return this.isConnected;
 	}
 }
