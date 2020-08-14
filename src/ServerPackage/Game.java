@@ -141,6 +141,7 @@ public class Game {
 		for (Entry<String, ClientHandler> c : players.entrySet()) {
 			try {
 				c.getValue().sendData("Game Started");
+				c.getValue().sendData("Time Left: " + this.getTimeLeft());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
