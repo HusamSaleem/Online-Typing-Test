@@ -155,7 +155,7 @@ public class ClientHandler implements Runnable {
 					Server.mmService.removePlayerFromQueue(this);
 				} else if (d.equals("Word List Finished")) {
 					this.finishedTyping = true;
-					this.timeFinished = System.currentTimeMillis();
+					this.timeFinished = System.currentTimeMillis()/1000;
 				}
 			}
 		}
