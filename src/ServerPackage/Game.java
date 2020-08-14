@@ -73,7 +73,7 @@ public class Game {
 		} else {
 			readFromFile(fileName);
 		}
-		
+
 		setPlayerGameIds(player1Name, player2Name);
 		shuffleWords();
 		this.wordListAsString = getWordsAsString();
@@ -82,7 +82,7 @@ public class Game {
 
 	private void setMaps(ArrayList<ClientHandler> playerList) {
 
-		System.out.println("Size: " + playerList.size());
+		System.out.println("Player size: " + playerList.size());
 		for (ClientHandler c : playerList) {
 			if (c != null) {
 				ArrayList<String> emptyList = new ArrayList<String>();
@@ -151,26 +151,32 @@ public class Game {
 		ClientHandler[] p = new ClientHandler[2];
 		int i = 0;
 		for (Entry<String, ClientHandler> c : players.entrySet()) {
-			updateStats(c.getKey());
-			p[i] = c.getValue();
+			if (!c.getValue().S.isClosed()) {
+				updateStats(c.getKey());
+				p[i] = c.getValue();
+			} else {
+				p[i] = null;
+			}
 			i++;
 		}
 
 		for (i = 0; i < p.length; i++) {
-			JSONObject obj = new JSONObject();
+			if (p[i] != null) {
+				JSONObject obj = new JSONObject();
 
-			try {
-				obj.put("name", p[i].getName());
-				obj.put("WPM", getPlayerWPM(p[i].getName()));
-				obj.put("accuracy", getPlayerAccuracy(p[i].getName()));
-				obj.put("timeLeft", getTimeLeft());
+				try {
+					obj.put("name", p[i].getName());
+					obj.put("WPM", getPlayerWPM(p[i].getName()));
+					obj.put("accuracy", getPlayerAccuracy(p[i].getName()));
+					obj.put("timeLeft", getTimeLeft());
 
-				String jsonText = obj.toString();
+					String jsonText = obj.toString();
 
-				p[0].sendData("JSON DATA STATS: " + jsonText);
-				p[1].sendData("JSON DATA STATS: " + jsonText);
-			} catch (JSONException | IOException e) {
-				e.printStackTrace();
+					p[0].sendData("JSON DATA STATS: " + jsonText);
+					p[1].sendData("JSON DATA STATS: " + jsonText);
+				} catch (JSONException | IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -202,7 +208,7 @@ public class Game {
 			wordList.add(word);
 		}
 	}
-	
+
 	private void generateInsanelyDifficultWordList() {
 		wordList.clear();
 
