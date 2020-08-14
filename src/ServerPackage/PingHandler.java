@@ -36,10 +36,10 @@ public class PingHandler implements Runnable {
 							e.printStackTrace();
 						}
 						iter.remove();
+					} else {
+						client.sendConnectionInfo();
 					}
-				} else {
-					client.sendConnectionInfo();
-				}
+				} 
 			}
 
 			System.out.println("Finished pinging clients...");
