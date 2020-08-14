@@ -23,24 +23,25 @@ public class PingHandler implements Runnable {
 					e.printStackTrace();
 				}
 
-				if (System.currentTimeMillis() - client.getLastPingTime() > PING_INTERVAL) {
+				if (System.currentTimeMillis() - client.getLastPingTime() > PING_INTERVAL && !client.S.isClosed()) {
 					client.increaseRetryCount();
 
 					if (!client.keepAlive()) {
 						System.out.println("Client has been removed: " + client.S.toString());
 
 						try {
-							client.S.close();
+							if (!client.S.isClosed())
+								client.S.close();
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-
 						iter.remove();
 					}
-
 				}
-				
+
+				if (client.S.isClosed())
+					iter.remove();
+
 				client.sendConnectionInfo();
 			}
 
