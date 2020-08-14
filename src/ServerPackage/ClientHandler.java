@@ -20,6 +20,9 @@ public class ClientHandler implements Runnable {
 	private boolean isConnected;
 	private long lastPinged;
 	
+	private boolean finishedTyping;
+	private long timeFinished;
+	
 	private String currentInput;
 
 	public ClientHandler(Socket S, String PROC_ID) {
@@ -27,6 +30,7 @@ public class ClientHandler implements Runnable {
 		this.PROC_ID = PROC_ID;
 		this.isConnected = true;
 
+		this.finishedTyping = false;
 		this.ready = false;
 		this.setCurrentInput("");
 
@@ -149,6 +153,9 @@ public class ClientHandler implements Runnable {
 				} else if (d.equals("Leave Queue")) {
 					System.out.println(getName() + " Has been removed from the Queue");
 					Server.mmService.removePlayerFromQueue(this);
+				} else if (d.equals("Word List Finished")) {
+					this.finishedTyping = true;
+					this.timeFinished = System.currentTimeMillis();
 				}
 			}
 		}
@@ -222,5 +229,21 @@ public class ClientHandler implements Runnable {
 
 	public boolean isConnected() {
 		return this.isConnected;
+	}
+
+	public boolean isFinishedTyping() {
+		return this.finishedTyping;
+	}
+
+	public long getTimeFinished() {
+		return timeFinished;
+	}
+	
+	public void setFinishedTyping(boolean finishedTyping) {
+		this.finishedTyping = finishedTyping;
+	}
+
+	public void setTimeFinished(long timeFinished) {
+		this.timeFinished = timeFinished;
 	}
 }

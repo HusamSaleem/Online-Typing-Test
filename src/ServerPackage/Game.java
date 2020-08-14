@@ -119,6 +119,7 @@ public class Game {
 			try {
 				c.getValue().sendData("Game Completed");
 				c.getValue().setCurGameID(-1);
+				c.getValue().setFinishedTyping(false);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -287,6 +288,7 @@ public class Game {
 
 	public void updateStats(String playerName) {
 		String userInput = players.get(playerName).getCurrentInput();
+		boolean finishedTyping = players.get(playerName).isFinishedTyping();
 
 		int wrongIndexCharCount = 0;
 
@@ -296,22 +298,40 @@ public class Game {
 			}
 		}
 
-		// Calculate the words per minute
-		float grossWPM = (userInput.length() / 5) / ((60 - timeLeft) / 60f);
-		float errorRate = wrongIndexCharCount / ((60 - timeLeft) / 60f);
-		float netWPM = grossWPM - errorRate;
+		if (finishedTyping) {
+			// Calculate the words per minute
+			float grossWPM = (userInput.length() / 5) / ((players.get(playerName).getTimeFinished()) / 60f);
+			float errorRate = wrongIndexCharCount / ((players.get(playerName).getTimeFinished()) / 60f);
+			float netWPM = grossWPM - errorRate;
 
-		if (netWPM < 0)
-			netWPM = 0;
+			if (netWPM < 0)
+				netWPM = 0;
 
+			netWPM = Math.round(netWPM);
+
+			this.playerStats.get(playerName).add(0, Float.toString(netWPM));
+		} else {
+			// Calculate the words per minute
+			float grossWPM = (userInput.length() / 5) / ((60 - timeLeft) / 60f);
+			float errorRate = wrongIndexCharCount / ((60 - timeLeft) / 60f);
+			float netWPM = grossWPM - errorRate;
+
+			if (netWPM < 0)
+				netWPM = 0;
+
+			netWPM = Math.round(netWPM);
+
+			this.playerStats.get(playerName).add(0, Float.toString(netWPM));
+		}
+		
 		float accuracyCalc = ((userInput.length() - wrongIndexCharCount) / (float) userInput.length()) * 100f;
 		accuracyCalc = Math.max(accuracyCalc, 0);
 
 		accuracyCalc = Math.round(accuracyCalc);
-		netWPM = Math.round(netWPM);
-
-		this.playerStats.get(playerName).add(0, Float.toString(netWPM));
+		
 		this.playerStats.get(playerName).add(1, Float.toString(accuracyCalc));
+		this.playerStats.get(playerName).add(1, Float.toString(accuracyCalc));
+
 	}
 
 	public boolean playersAreReady() {
