@@ -50,7 +50,6 @@ public class MysqlConn {
 			System.out.println("-----------------------------------------------------");
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -66,17 +65,15 @@ public class MysqlConn {
 				return false;
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			System.out.println(e.getMessage());
 
 			return false;
 		}
 	}
 
+	// Creates a new row in the database "2PlayerGames"
 	public int createGameSess(String player1Name, String player2Name) {
 		try {
-			// Statement statement = dbConn.createStatement();
-
 			PreparedStatement statement = dbConn.prepareStatement(
 					"INSERT INTO 2PlayerGames(Player_One_WPM, Player_Two_WPM, Player_One_Accuracy, Player_Two_Accuracy, Player_One_Name, Player_Two_Name) "
 							+ "VALUES (?,?,?,?,?,?)",
@@ -110,6 +107,7 @@ public class MysqlConn {
 		return -1;
 	}
 
+	// Updates the player statistics for the game session
 	public boolean updateGameInfo(int id, HashMap<String, ArrayList<String>> playerStats,
 			ArrayList<String> playerNames) {
 		try {
@@ -125,6 +123,7 @@ public class MysqlConn {
 			statement.setInt(3, (int) Math.round(Float.parseFloat(playerStats.get(playerNames.get(0)).get(1))));
 			statement.setInt(4, (int) Math.round(Float.parseFloat(playerStats.get(playerNames.get(1)).get(1))));
 
+			// Game ID
 			statement.setInt(5, id);
 
 			int result = statement.executeUpdate();
@@ -140,5 +139,4 @@ public class MysqlConn {
 			return false;
 		}
 	}
-
 }

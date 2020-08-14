@@ -54,19 +54,27 @@ public class Game {
 			System.out.println("Game ID: " + this.id + " Successfully created the game session... Players: {"
 					+ playerList.get(0).getName() + ", " + playerList.get(1).getName() + "}");
 
-			// Easy
+			// 1 = Easy, 2 = Challenging, 3 = Insane
 			if (difficulty == 1) {
 				startGame("easyWords.txt", playerList.get(0).getName(), playerList.get(1).getName());
+			} else if (difficulty == 2) {
+				startGame("challengeWords.txt", playerList.get(0).getName(), playerList.get(1).getName());
+			} else if (difficulty == 3) {
+				startGame("insane", playerList.get(0).getName(), playerList.get(1).getName());
 			}
 		} else {
 			System.out.println("Failed to create the game session");
 		}
-
 	}
 
 	public void startGame(String fileName, String player1Name, String player2Name) {
+		if (fileName.equals("insane")) {
+			generateInsanelyDifficultWordList();
+		} else {
+			readFromFile(fileName);
+		}
+		
 		setPlayerGameIds(player1Name, player2Name);
-		readFromFile(fileName);
 		shuffleWords();
 		this.wordListAsString = getWordsAsString();
 		sendTimeDelay(TIME_DELAY_BEFORE_GAME_START);
@@ -111,7 +119,6 @@ public class Game {
 				c.getValue().sendData("Game Completed");
 				c.getValue().setCurGameID(-1);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -123,7 +130,6 @@ public class Game {
 			try {
 				c.getValue().sendData("Game will start in (seconds): " + time);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -135,7 +141,6 @@ public class Game {
 			try {
 				c.getValue().sendData("Game Started");
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -162,12 +167,9 @@ public class Game {
 
 				String jsonText = obj.toString();
 
-				System.out.println("JSON: " + jsonText);
-
-				p[0].sendData("JSON DATA: " + jsonText);
-				p[1].sendData("JSON DATA: " + jsonText);
+				p[0].sendData("JSON DATA STATS: " + jsonText);
+				p[1].sendData("JSON DATA STATS: " + jsonText);
 			} catch (JSONException | IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -178,7 +180,6 @@ public class Game {
 			try {
 				c.getValue().sendData("Word List: " + this.wordListAsString);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -198,6 +199,50 @@ public class Game {
 
 		while (fileReader.hasNext()) {
 			String word = fileReader.next();
+			wordList.add(word);
+		}
+	}
+	
+	private void generateInsanelyDifficultWordList() {
+		wordList.clear();
+
+		Random randLength = new Random();
+		Random randIndex = new Random();
+		Random randRoll = new Random();
+
+		String[] alphabet = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r",
+				"s", "t", "u", "v", "w", "x", "y", "z" };
+		String[] specialCharacters = { ",", ";", "!", "@", "$", "&", "%", "#", "*", "(", ")" };
+
+		final int MAX_WORD_LENGTH = 12;
+		final int MIN_WORD_LENGTH = 5;
+		final int SPECIAL_CHARACTER_CHANCE = 15;
+		final int UPPERCASE_CHANCE = 25;
+
+		for (int i = 0; i < MAX_WORDS; i++) {
+			int length = randLength.nextInt(MAX_WORD_LENGTH - MIN_WORD_LENGTH) + MIN_WORD_LENGTH;
+			String word = "";
+
+			for (int j = 0; j < length; j++) {
+				int specialCharacterChance = randRoll.nextInt(101);
+				int index = 0;
+
+				if (SPECIAL_CHARACTER_CHANCE >= specialCharacterChance) {
+					index = randIndex.nextInt(specialCharacters.length);
+					word += specialCharacters[index];
+				} else {
+					index = randIndex.nextInt(alphabet.length);
+
+					int upperCaseChance = randRoll.nextInt(101);
+
+					if (UPPERCASE_CHANCE >= upperCaseChance) {
+						word += alphabet[index].toUpperCase();
+					} else {
+						word += alphabet[index].toLowerCase();
+					}
+				}
+			}
+
 			wordList.add(word);
 		}
 	}

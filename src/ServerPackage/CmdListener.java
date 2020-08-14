@@ -3,17 +3,17 @@ package ServerPackage;
 import java.io.IOException;
 import java.util.Scanner;
 
-public class CmdListener implements Runnable{
+// Listens for user input to display information about the server/database...
+public class CmdListener implements Runnable {
 	private Scanner scan;
 
 	public CmdListener() {
 		scan = new Scanner(System.in);
 	}
-	
+
 	@Override
 	public void run() {
 		showMenu();
-		
 	}
 
 	private void showMenu() {
@@ -40,7 +40,7 @@ public class CmdListener implements Runnable{
 		} else if (input.equals("4") || input.equalsIgnoreCase("server -msg")) {
 			serverMsg();
 		} else if (input.equals("5") || input.equalsIgnoreCase("db user -d")) {
-			 displayUsers();
+			displayUsers();
 		}
 
 	}
@@ -64,37 +64,37 @@ public class CmdListener implements Runnable{
 			System.out.println("No connected clients to send a message to");
 			return false;
 		}
-		
+
 		System.out.println(displayAllConnectedClientInfo());
 		System.out.println("Choose a process_id to send to");
-		
+
 		String ID = scan.nextLine();
-		
-		for (ClientHandler c: Server.clients) {
+
+		for (ClientHandler c : Server.clients) {
 			if (c.PROC_ID.equalsIgnoreCase(ID)) {
 				System.out.println("Please enter your message to send to the client...");
-				
+
 				String msg = scan.next();
-				
+
 				try {
 					return c.sendData(msg);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
+
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	private boolean serverMsg() {
 		System.out.println("Please enter your message to send to all the clients...");
-		
+
 		String msg = "Server: " + scan.nextLine();
-		
-		for (ClientHandler c: Server.clients) {
+
+		for (ClientHandler c : Server.clients) {
 			try {
 				c.sendData(msg);
 			} catch (IOException e) {
@@ -102,10 +102,10 @@ public class CmdListener implements Runnable{
 				e.printStackTrace();
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	private void displayUsers() {
 		Server.db.displayAccounts();
 	}

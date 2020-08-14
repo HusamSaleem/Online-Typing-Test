@@ -5,6 +5,9 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class ClientHandler implements Runnable {
 	public final Socket S;
 	public final String PROC_ID;
@@ -14,7 +17,6 @@ public class ClientHandler implements Runnable {
 	private boolean ready;
 
 	private int retryConnections;
-	private boolean isConnected;
 	private long lastPinged;
 
 	private String currentInput;
@@ -22,17 +24,16 @@ public class ClientHandler implements Runnable {
 	public ClientHandler(Socket S, String PROC_ID) {
 		this.S = S;
 		this.PROC_ID = PROC_ID;
+
 		this.ready = false;
 		this.setCurrentInput("");
 
 		this.retryConnections = 0;
-		this.isConnected = true;
 		this.lastPinged = System.currentTimeMillis();
 
 		try {
 			sendData("Process_ID: " + this.PROC_ID);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -40,9 +41,9 @@ public class ClientHandler implements Runnable {
 	@Override
 	public void run() {
 		try {
-			processData();
+			if (!S.isClosed())
+				processData();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -104,12 +105,9 @@ public class ClientHandler implements Runnable {
 				System.out.println("Client: " + S.toString() + " sent this data: " + d);
 
 				if (d.equals("Process_ID: " + this.PROC_ID)) {
-
-					this.isConnected = true;
 					this.lastPinged = System.currentTimeMillis();
 
 				} else if (d.equals("Process_ID: NULL")) {
-
 					this.lastPinged = System.currentTimeMillis();
 					sendData("Process_ID: " + this.PROC_ID);
 
@@ -124,17 +122,48 @@ public class ClientHandler implements Runnable {
 					} else {
 						sendData("Register Failure");
 					}
+
 				} else if (d.contains("Input Update: ")) {
 					if (this.curGameID != -1)
 						setCurrentInput(d.substring(14));
-				} else if (d.equals("Join 2 player easy queue")) {
-					Server.mmService.addPlayerToQueue(this);
-					System.out.println(getName() + " has been added to the queue");
+
+				} else if (d.contains("Join 2 player queue: ")) {
+					int difficulty = Integer.parseInt(d.substring(21).trim());
+					Server.mmService.addPlayerToQueue(this, difficulty);
+
+					System.out.println(getName() + " has been added to the " + difficulty + " level queue");
 					sendData("Added to the queue");
+
 				} else if (d.equals("Ready")) {
 					this.ready = true;
+
+				} else if (d.equals("Require Info: Connections")) {
+					sendConnectionInfo();
+
+				} else if (d.equals("Close This Connection")) {
+					System.out.println("Client has been closed on request: " + S.toString());
+					this.S.close();
+
+				} else if (d.equals("I am alive")) {
+					this.lastPinged = System.currentTimeMillis();
 				}
 			}
+		}
+	}
+
+	private void sendConnectionInfo() {
+		JSONObject obj = new JSONObject();
+
+		try {
+			obj.put("totalConnections", Server.clients.size());
+			obj.put("easyQueueConnections", Server.mmService.playerEasyQueue2.size());
+			obj.put("challengeQueueConnections", Server.mmService.playerChallengingQueue2.size());
+			obj.put("insaneQueueConnections", Server.mmService.playerInsaneQueue2.size());
+
+			String jsonAsString = obj.toString();
+			sendData("JSON DATA CONNINFO: " + jsonAsString);
+		} catch (JSONException | IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -146,10 +175,6 @@ public class ClientHandler implements Runnable {
 		} else {
 			return true;
 		}
-	}
-
-	public boolean isAlive() {
-		return this.isConnected;
 	}
 
 	public int getRetryCount() {

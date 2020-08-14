@@ -26,7 +26,6 @@ public class GameManager implements Runnable {
 			try {
 				Thread.sleep(SLEEP_INTERVAL);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -52,7 +51,6 @@ public class GameManager implements Runnable {
 				if (g.getValue().isGameDone()) {
 					System.out.println("Game session has been completed and removed from active games, ID: "
 							+ g.getValue().getGameId());
-					// MatchMakingService.activeGameSessions.remove(g.getKey());
 					iter.remove();
 				}
 			}
