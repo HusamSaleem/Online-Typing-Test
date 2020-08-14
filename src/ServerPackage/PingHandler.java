@@ -18,7 +18,8 @@ public class PingHandler implements Runnable {
 				ClientHandler client = iter.next();
 
 				try {
-					client.sendData("Ping!");
+					if (!client.S.isClosed())
+						client.sendData("Ping!");
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
