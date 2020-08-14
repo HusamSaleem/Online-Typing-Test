@@ -330,7 +330,6 @@ public class Game {
 		accuracyCalc = Math.round(accuracyCalc);
 		
 		this.playerStats.get(playerName).add(1, Float.toString(accuracyCalc));
-		this.playerStats.get(playerName).add(1, Float.toString(accuracyCalc));
 
 	}
 
