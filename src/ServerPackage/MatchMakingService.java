@@ -75,6 +75,12 @@ public class MatchMakingService {
 		for (int i = 0; i < players.size(); i++) {
 			try {
 				players.get(i).sendData("Are you alive?");
+				
+				try {
+					Thread.sleep(DATA_THRESHOLD + 500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 
 				if (System.currentTimeMillis() - players.get(i).getLastPingTime() > DATA_THRESHOLD) {
 					return i;
