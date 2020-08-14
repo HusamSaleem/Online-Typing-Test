@@ -92,7 +92,7 @@ public class CmdListener implements Runnable {
 	private boolean serverMsg() {
 		System.out.println("Please enter your message to send to all the clients...");
 
-		String msg = "Server: " + scan.nextLine();
+		String msg = scan.nextLine();
 
 		for (ClientHandler c : Server.clients) {
 			try {
