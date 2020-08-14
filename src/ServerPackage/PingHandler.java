@@ -24,7 +24,7 @@ public class PingHandler implements Runnable {
 					e.printStackTrace();
 				}
 
-				if (System.currentTimeMillis() - client.getLastPingTime() > PING_INTERVAL) {
+				if (System.currentTimeMillis() - client.getLastPingTime() > PING_INTERVAL || !client.isConnected()) {
 					client.increaseRetryCount();
 
 					if (!client.keepAlive() || !client.isConnected()) {
