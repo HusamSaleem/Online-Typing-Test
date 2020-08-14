@@ -146,6 +146,8 @@ public class ClientHandler implements Runnable {
 
 				} else if (d.equals("I am alive")) {
 					this.lastPinged = System.currentTimeMillis();
+				} else if (d.equals("Leave Queue")) {
+					Server.mmService.removePlayerFromQueue(this);
 				}
 			}
 		}

@@ -77,7 +77,7 @@ public class CmdListener implements Runnable {
 				String msg = scan.next();
 
 				try {
-					return c.sendData(msg);
+					return c.sendData("Server Msg: " + msg);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

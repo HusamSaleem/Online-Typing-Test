@@ -57,12 +57,12 @@ public class MatchMakingService {
 				activeGameSessions.put(game.getGameId(), game);
 			} else {
 				if (inactivePlayerIndex == 0) {
-					System.out.println(
-							"Removed player from the Queue for inactivity: " + players.get(inactivePlayerIndex + 1).getName());
+					System.out.println("Removed player from the Queue for inactivity: "
+							+ players.get(inactivePlayerIndex + 1).getName());
 					queue.add(players.get(inactivePlayerIndex + 1));
 				} else if (inactivePlayerIndex == 1) {
-					System.out.println(
-							"Removed player from the Queue for inactivity: " + players.get(inactivePlayerIndex - 1).getName());
+					System.out.println("Removed player from the Queue for inactivity: "
+							+ players.get(inactivePlayerIndex - 1).getName());
 					queue.add(players.get(inactivePlayerIndex - 1));
 				}
 			}
@@ -75,10 +75,10 @@ public class MatchMakingService {
 		for (int i = 0; i < players.size(); i++) {
 			if (!players.get(i).isConnected())
 				return i;
-			
+
 			try {
 				players.get(i).sendData("Are you alive?");
-				
+
 				try {
 					Thread.sleep(DATA_THRESHOLD + 500);
 				} catch (InterruptedException e) {
@@ -96,4 +96,11 @@ public class MatchMakingService {
 		}
 		return -1;
 	}
+
+	public void removePlayerFromQueue(ClientHandler player) {
+		playerEasyQueue2.remove(player);
+		playerChallengingQueue2.remove(player);
+		playerInsaneQueue2.remove(player);
+	}
+
 }
