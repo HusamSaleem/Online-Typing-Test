@@ -17,7 +17,6 @@ public class PingHandler implements Runnable {
 			while (iter.hasNext()) {
 				ClientHandler client = iter.next();
 				
-				System.out.println(client.isConnected());
 				if (!client.isConnected()) {
 					System.out.println("Client has been removed: " + client.S.toString());
 					try {
