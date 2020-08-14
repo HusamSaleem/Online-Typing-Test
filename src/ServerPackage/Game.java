@@ -15,7 +15,8 @@ public class Game {
 
 	private final int MAX_WORDS = 100;
 	private final int TIME_DELAY_BEFORE_GAME_START = 5;
-	private final int TIME_PER_GAME = 60;
+	// 62 because it will help with the client delay
+	private final int TIME_PER_GAME = 62;
 
 	private int id;
 	private final int difficulty;
