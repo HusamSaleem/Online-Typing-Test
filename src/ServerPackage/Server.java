@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * @author Husam Saleem
+ */
 public class Server {
 
 	public static ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
@@ -18,7 +21,6 @@ public class Server {
 	public static ExecutorService threadPool;
 
 	public static MysqlConn db;
-
 	public static MatchMakingService mmService;
 
 	public Server(int port, int poolSize) throws IOException {
@@ -40,9 +42,12 @@ public class Server {
 		});
 	}
 
-	// Starts the server and starts listening on the specified port
-	// Accepts any connections
-	// Makes new threads for each client to receive data from the clients
+	
+	/**
+	 * <p><b> Starts the server and creates new threads for necessary classes that need to listen for data and handle it</b></p>
+	 * <p><b> Also listens for any incoming connection request </b></p>
+	 * @throws IOException
+	 */
 	private void start() throws IOException {
 		System.out.println("Server is listening on port: " + serverSocket.getLocalPort());
 
@@ -79,6 +84,9 @@ public class Server {
 		}
 	}
 
+	/**
+	 * <p><b> Closes the server socket so it stops listening when the server stops. </b></p>
+	 */
 	private void shutDown() {
 		System.out.println("Shutting down the server...");
 		try {

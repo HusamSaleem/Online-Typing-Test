@@ -6,6 +6,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Queue;
 
+/**
+ * <p><b> This class will handle the Matchmaking service of the game </b></p>
+ * @author Husam Saleem
+ */
 public class MatchMakingService {
 	// 2 Player Matchmaking Queues
 	public Queue<ClientHandler> playerEasyQueue2;
@@ -13,16 +17,21 @@ public class MatchMakingService {
 	public Queue<ClientHandler> playerInsaneQueue2;
 
 	// All Active game sessions
-	public static HashMap<Integer, Game> activeGameSessions;
+	public HashMap<Integer, Game> activeGameSessions;
 
 	public MatchMakingService() {
 		this.playerEasyQueue2 = new ArrayDeque<ClientHandler>();
 		this.playerChallengingQueue2 = new ArrayDeque<ClientHandler>();
 		this.playerInsaneQueue2 = new ArrayDeque<ClientHandler>();
 
-		MatchMakingService.activeGameSessions = new HashMap<Integer, Game>();
+		this.activeGameSessions = new HashMap<Integer, Game>();
 	}
 
+	/**
+	 * <p><b> Adds a player to the respective Queue </b></p>
+	 * @param c
+	 * @param difficulty
+	 */
 	public void addPlayerToQueue(ClientHandler c, int difficulty) {
 		if (difficulty == 1)
 			playerEasyQueue2.add(c);
@@ -32,6 +41,12 @@ public class MatchMakingService {
 			playerInsaneQueue2.add(c);
 	}
 
+	/**
+	 * <p><b> Checks to see if any Queue has enough players to start the game session </b></p>
+	 * <p><b> Also checks to see if the players in Queue are still active, if not they get removed </b></p>
+	 * @param queue
+	 * @param difficulty
+	 */
 	public void checkQueues(Queue<ClientHandler> queue, int difficulty) {
 		while (queue.size() % 2 == 0) {
 			ArrayList<ClientHandler> players = new ArrayList<ClientHandler>();
@@ -57,18 +72,21 @@ public class MatchMakingService {
 				activeGameSessions.put(game.getGameId(), game);
 			} else {
 				if (inactivePlayerIndex == 0) {
-					System.out.println("Removed player from the Queue for inactivity: "
-							+ players.get(inactivePlayerIndex + 1).getName());
+					//System.out.println("Removed player from the Queue for inactivity: " + players.get(inactivePlayerIndex + 1).getName());
 					queue.add(players.get(inactivePlayerIndex + 1));
 				} else if (inactivePlayerIndex == 1) {
-					System.out.println("Removed player from the Queue for inactivity: "
-							+ players.get(inactivePlayerIndex - 1).getName());
+					//System.out.println("Removed player from the Queue for inactivity: " + players.get(inactivePlayerIndex - 1).getName());
 					queue.add(players.get(inactivePlayerIndex - 1));
 				}
 			}
 		}
 	}
 
+	/**
+	 * <p><b> Pings players and expects a message back otherwise they are not ready... </b></p>
+	 * @param players
+	 * @return
+	 */
 	public int checkIfPlayersAreAlive(ArrayList<ClientHandler> players) {
 		final int DATA_THRESHOLD = 2000;
 
@@ -97,10 +115,13 @@ public class MatchMakingService {
 		return -1;
 	}
 
+	/**
+	 * <p><b> Removes a player from any Queue that they are in </b></p>
+	 * @param player
+	 */
 	public void removePlayerFromQueue(ClientHandler player) {
 		playerEasyQueue2.remove(player);
 		playerChallengingQueue2.remove(player);
 		playerInsaneQueue2.remove(player);
 	}
-
 }

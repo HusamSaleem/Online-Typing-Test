@@ -11,15 +11,21 @@ import java.util.Scanner;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * <p>
+ * <b> The main class for the Game Sessions </b>
+ * </p>
+ * 
+ * @author Husam Saleem
+ */
 public class Game {
-
 	private final int MAX_WORDS = 100;
 	private final int TIME_DELAY_BEFORE_GAME_START = 5;
-	// 62 because it will help with the client delay
 	private final int TIME_PER_GAME = 61;
 
 	private int id;
 	private final int difficulty;
+
 	private HashMap<String, ClientHandler> players;
 	// Array list, WPM = index 0, Accuracy = index 1
 	private HashMap<String, ArrayList<String>> playerStats;
@@ -39,10 +45,10 @@ public class Game {
 		this.players = new HashMap<String, ClientHandler>();
 		this.playerStats = new HashMap<String, ArrayList<String>>();
 		this.playerNames = new ArrayList<String>();
-		this.difficulty = difficulty;
 
 		setMaps(playerList);
 
+		this.difficulty = difficulty;
 		this.wordList = new ArrayList<String>();
 		this.wordListAsString = "";
 
@@ -69,6 +75,15 @@ public class Game {
 		}
 	}
 
+	/**
+	 * <p>
+	 * <b> Sets up and starts the game </b>
+	 * </p>
+	 * 
+	 * @param fileName
+	 * @param player1Name
+	 * @param player2Name
+	 */
 	public void startGame(String fileName, String player1Name, String player2Name) {
 		if (fileName.equals("insane")) {
 			generateInsanelyDifficultWordList();
@@ -82,8 +97,14 @@ public class Game {
 		sendTimeDelay(TIME_DELAY_BEFORE_GAME_START);
 	}
 
+	/**
+	 * <p>
+	 * <b> A helper method to initialize the arrays </b>
+	 * </p>
+	 * 
+	 * @param playerList
+	 */
 	private void setMaps(ArrayList<ClientHandler> playerList) {
-
 		System.out.println("Player size: " + playerList.size());
 		for (ClientHandler c : playerList) {
 			if (c != null) {
@@ -95,11 +116,20 @@ public class Game {
 		}
 	}
 
+	/**
+	 * <p><b> Sets the game ids of the game session for players </b></p>
+	 * @param player1Name
+	 * @param player2Name
+	 */
 	private void setPlayerGameIds(String player1Name, String player2Name) {
 		players.get(player1Name).setCurGameID(this.id);
 		players.get(player2Name).setCurGameID(this.id);
 	}
 
+	/**
+	 * <p><b> Decreases the game timer and also checks to see if it has reached the end </b></p>
+	 * <p><b> If it reached the end, it will update the game session's data in the database and reset the clients info regarding this game </b></p> 
+	 */
 	public void decreaseTimer() {
 		this.timeLeft--;
 
@@ -111,10 +141,16 @@ public class Game {
 		}
 	}
 
+	/**
+	 * <p><b> Updates the game session's data row with the player statistics results' </b></p>
+	 */
 	private void updateDatabase() {
 		Server.db.updateGameInfo(this.id, this.playerStats, this.playerNames);
 	}
 
+	/**
+	 * <p><b> Reset some variables for each player </b></p>
+	 */
 	private void resetClientGameInfo() {
 		for (Entry<String, ClientHandler> c : players.entrySet()) {
 			try {
@@ -127,7 +163,11 @@ public class Game {
 		}
 	}
 
-	// Time in seconds
+	
+	/**
+	 * <p><b> Sets a time delay before the game actually starts </b></p>
+	 * @param time (SECONDS)
+	 */
 	public void sendTimeDelay(int time) {
 		for (Entry<String, ClientHandler> c : players.entrySet()) {
 			try {
@@ -138,6 +178,9 @@ public class Game {
 		}
 	}
 
+	/**
+	 * <p><b> Notifies all players that the game has started </b></p>
+	 */
 	public void notifyClientsGameStarted() {
 		sendWordList();
 		for (Entry<String, ClientHandler> c : players.entrySet()) {
@@ -151,40 +194,9 @@ public class Game {
 		this.gameStarted = true;
 	}
 
-	public void updateClientData() {
-		ClientHandler[] p = new ClientHandler[2];
-		int i = 0;
-		for (Entry<String, ClientHandler> c : players.entrySet()) {
-			if (!c.getValue().S.isClosed()) {
-				updateStats(c.getKey());
-				p[i] = c.getValue();
-			} else {
-				p[i] = null;
-			}
-			i++;
-		}
-
-		for (i = 0; i < p.length; i++) {
-			if (p[i] != null) {
-				JSONObject obj = new JSONObject();
-
-				try {
-					obj.put("name", p[i].getName());
-					obj.put("WPM", getPlayerWPM(p[i].getName()));
-					obj.put("accuracy", getPlayerAccuracy(p[i].getName()));
-					obj.put("timeLeft", getTimeLeft());
-
-					String jsonText = obj.toString();
-
-					p[0].sendData("JSON DATA STATS: " + jsonText);
-					p[1].sendData("JSON DATA STATS: " + jsonText);
-				} catch (JSONException | IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
+	/**
+	 * <p><b> Sends the created word list to the players </b></p>
+	 */
 	public void sendWordList() {
 		for (Entry<String, ClientHandler> c : this.players.entrySet()) {
 			try {
@@ -195,6 +207,10 @@ public class Game {
 		}
 	}
 
+	/**
+	 * <p><b> A helper method to read from text files </b></p>
+	 * @param txtFile
+	 */
 	private void readFromFile(String txtFile) {
 		File file;
 		Scanner fileReader = null;
@@ -213,6 +229,46 @@ public class Game {
 		}
 	}
 
+	/**
+	 * <p><b> A helper method to shuffle the word list at random </b></p>
+	 */
+	private void shuffleWords() {
+		Random rand = new Random();
+
+		String temp = null;
+
+		for (int i = 0; i < MAX_WORDS; i++) {
+			int randIndex = rand.nextInt(wordList.size());
+
+			temp = wordList.get(i);
+			wordList.set(i, wordList.get(randIndex));
+			wordList.set(randIndex, temp);
+		}
+	}
+
+	/**
+	 * <p><b> Returns the word list as a string </b></p>
+	 * @return String
+	 */
+	public String getWordsAsString() {
+		String result = "";
+
+		int i = 0;
+		for (String s : wordList) {
+			result += s + " ";
+
+			i++;
+			if (i >= MAX_WORDS)
+				break;
+		}
+
+		result = result.trim();
+		return result;
+	}
+	
+	/**
+	 * <p><b> Generate the most difficult word list </b></p>
+	 */
 	private void generateInsanelyDifficultWordList() {
 		wordList.clear();
 
@@ -256,37 +312,49 @@ public class Game {
 			wordList.add(word);
 		}
 	}
-
-	private void shuffleWords() {
-		Random rand = new Random();
-
-		String temp = null;
-
-		for (int i = 0; i < MAX_WORDS; i++) {
-			int randIndex = rand.nextInt(wordList.size());
-
-			temp = wordList.get(i);
-			wordList.set(i, wordList.get(randIndex));
-			wordList.set(randIndex, temp);
-		}
-	}
-
-	public String getWordsAsString() {
-		String result = "";
-
+	
+	/**
+	 * <p><b> Updates the clients info regarding their statistics from the game</b></p>
+	 * <p><b> Also sends a JSON string containing all player's statistics to all players </b></p>
+	 */
+	public void updateClientData() {
+		ClientHandler[] p = new ClientHandler[2];
 		int i = 0;
-		for (String s : wordList) {
-			result += s + " ";
-
+		for (Entry<String, ClientHandler> c : players.entrySet()) {
+			if (!c.getValue().isConnected()) {
+				updateStats(c.getKey());
+				p[i] = c.getValue();
+			} else {
+				p[i] = null;
+			}
 			i++;
-			if (i >= MAX_WORDS)
-				break;
 		}
 
-		result = result.trim();
-		return result;
-	}
+		for (i = 0; i < p.length; i++) {
+			if (p[i] != null) {
+				JSONObject obj = new JSONObject();
 
+				try {
+					obj.put("name", p[i].getName());
+					obj.put("WPM", getPlayerWPM(p[i].getName()));
+					obj.put("accuracy", getPlayerAccuracy(p[i].getName()));
+					obj.put("timeLeft", getTimeLeft());
+
+					String jsonText = obj.toString();
+
+					p[0].sendData("JSON DATA STATS: " + jsonText);
+					p[1].sendData("JSON DATA STATS: " + jsonText);
+				} catch (JSONException | IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	/**
+	 * <p><b> Update the statistics (WPM, Accuracy) of a certain player </b></p>
+	 * @param playerName
+	 */
 	public void updateStats(String playerName) {
 		String userInput = players.get(playerName).getCurrentInput();
 		boolean finishedTyping = players.get(playerName).isFinishedTyping();
@@ -324,16 +392,20 @@ public class Game {
 
 			this.playerStats.get(playerName).add(0, Float.toString(netWPM));
 		}
-		
+
 		float accuracyCalc = ((userInput.length() - wrongIndexCharCount) / (float) userInput.length()) * 100f;
 		accuracyCalc = Math.max(accuracyCalc, 0);
 
 		accuracyCalc = Math.round(accuracyCalc);
-		
+
 		this.playerStats.get(playerName).add(1, Float.toString(accuracyCalc));
 
 	}
 
+	/**
+	 * <p><b> Checks to see if the players are ready </b></p>
+	 * @return
+	 */
 	public boolean playersAreReady() {
 		for (Entry<String, ClientHandler> c : this.players.entrySet()) {
 			if (!c.getValue().isReady()) {
@@ -378,5 +450,9 @@ public class Game {
 
 	public boolean isGameDone() {
 		return this.isFinished;
+	}
+
+	public ArrayList<String> getPlayerNames() {
+		return this.playerNames;
 	}
 }

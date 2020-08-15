@@ -1,6 +1,9 @@
 package ServerPackage;
 
-//Listens for data from each client and processes it 
+/**
+ * <p><b> Listens for each client's incoming data and executes them in a threadpool </b></p>
+ * @author Husam Saleem
+ */
 public class ThreadHandlers implements Runnable {
 
 	final int DATA_LISTEN_INTERVAL = 1000;
@@ -15,7 +18,6 @@ public class ThreadHandlers implements Runnable {
 			try {
 				Thread.sleep(DATA_LISTEN_INTERVAL);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

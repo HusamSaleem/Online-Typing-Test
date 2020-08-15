@@ -3,11 +3,13 @@ package ServerPackage;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * <p><b> Handles information sending and receiving by the client, and processes it </b></p>
+ * @author Husam Saleem
+ */
 public class ClientHandler implements Runnable {
 	public final Socket S;
 	public final String PROC_ID;
@@ -16,13 +18,14 @@ public class ClientHandler implements Runnable {
 	private String playerName;
 	private boolean ready;
 
+	// These variables are for checking to see if the client is still connected.
 	private int retryConnections;
 	private boolean isConnected;
 	private long lastPinged;
-	
+
 	private boolean finishedTyping;
 	private long timeFinished;
-	
+
 	private String currentInput;
 
 	public ClientHandler(Socket S, String PROC_ID) {
@@ -54,7 +57,16 @@ public class ClientHandler implements Runnable {
 		}
 	}
 
+	/**
+	 * <p><b> Sends data to the client if the client is connected </b></p>
+	 * @param data, the string of data to be sent
+	 * @return
+	 * @throws IOException
+	 */
 	public boolean sendData(String data) throws IOException {
+		if (!this.isConnected)
+			return false;
+
 		PrintWriter writer = new PrintWriter(S.getOutputStream(), true);
 
 		if (writer.checkError())
@@ -65,6 +77,12 @@ public class ClientHandler implements Runnable {
 		return true;
 	}
 
+	/**
+	 * <p><b> Checks for incoming data through the socket connection from the client </b></p>
+	 * @return a String[] array that contains all the data that the client sent
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	public String[] recieveData() throws IOException, InterruptedException {
 		int red = -1;
 		byte[] buffer = new byte[5 * 1024]; // A read buffer of 5 KiB
@@ -95,7 +113,10 @@ public class ClientHandler implements Runnable {
 		return data;
 	}
 
-	// Reads and parses the data from the client
+	/**
+	 * <p><b> Parses through the incoming data from the client and process it</b></p>
+	 * @throws IOException
+	 */
 	public void processData() throws IOException {
 		String[] data = null;
 		try {
@@ -150,17 +171,23 @@ public class ClientHandler implements Runnable {
 
 				} else if (d.equals("I am alive")) {
 					this.lastPinged = System.currentTimeMillis();
+
 				} else if (d.equals("Leave Queue")) {
 					System.out.println(getName() + " Has been removed from the Queue");
 					Server.mmService.removePlayerFromQueue(this);
+
 				} else if (d.equals("Word List Finished")) {
 					this.finishedTyping = true;
-					this.timeFinished = System.currentTimeMillis()/1000;
+					this.timeFinished = System.currentTimeMillis() / 1000;
 				}
 			}
 		}
 	}
 
+	
+	/**
+	 * <p><b> Sends a JSON string to the client containing connection information (IE: Total Connections, etc...) </b></p>
+	 */
 	public void sendConnectionInfo() {
 		JSONObject obj = new JSONObject();
 
@@ -177,8 +204,9 @@ public class ClientHandler implements Runnable {
 		}
 	}
 
-	// Returns false : Delete this client b/c its inactive
-	// Returns true: its still not exceeded the retry maximum limit
+	/**
+	 * @return false if the amount of connection retries is greater than 3
+	 */
 	public boolean keepAlive() {
 		if (this.retryConnections > 3) {
 			return false;
@@ -238,7 +266,7 @@ public class ClientHandler implements Runnable {
 	public long getTimeFinished() {
 		return timeFinished;
 	}
-	
+
 	public void setFinishedTyping(boolean finishedTyping) {
 		this.finishedTyping = finishedTyping;
 	}

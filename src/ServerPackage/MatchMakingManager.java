@@ -1,5 +1,9 @@
 package ServerPackage;
 
+/**
+ * <p><b> Manages the MatchMakingService as a different thread </b></p>
+ * @author Husam Saleem
+ */
 public class MatchMakingManager implements Runnable{
 
 	@Override
@@ -12,7 +16,6 @@ public class MatchMakingManager implements Runnable{
 			try {
 				Thread.sleep(3250);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

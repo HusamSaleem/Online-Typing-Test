@@ -9,8 +9,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * <p><b> This is the database class where it handles the connectivity, as well as the saving/updating/getting information </b></p>
+ * @author Husam Saleem
+ */
 public class MysqlConn {
-
 	Connection dbConn = null;
 
 	private String url = "jdbc:mysql://localhost:3306/TypingTestDb?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
@@ -18,10 +21,12 @@ public class MysqlConn {
 	private String password = "Popakon123!";
 
 	public MysqlConn() {
-
 		startConnection();
 	}
 
+	/**
+	 * <p><b> Starts the connection from the server to the database </b></p>
+	 */
 	private void startConnection() {
 		try {
 
@@ -35,6 +40,9 @@ public class MysqlConn {
 		}
 	}
 
+	/**
+	 * <p><b> This will get all the registered usernames from the database (Table: accounts) and display it </b></p>
+	 */
 	public void displayAccounts() {
 		try {
 			Statement statement = dbConn.createStatement();
@@ -54,6 +62,11 @@ public class MysqlConn {
 		}
 	}
 
+	/**
+	 * <p><b> Tries to register a unique name into the database </b></p>
+	 * @param user
+	 * @return true if it worked
+	 */
 	public boolean registerUsername(String user) {
 		try {
 			Statement statement = dbConn.createStatement();
@@ -71,7 +84,13 @@ public class MysqlConn {
 		}
 	}
 
-	// Creates a new row in the database "2PlayerGames"
+	
+	/**
+	 * <p><b> This creates a new row (Table of 2PlayerGames) in the database for the new game session </b></p>
+	 * @param player1Name
+	 * @param player2Name
+	 * @return the Game ID of the created session
+	 */
 	public int createGameSess(String player1Name, String player2Name) {
 		try {
 			PreparedStatement statement = dbConn.prepareStatement(
@@ -107,7 +126,14 @@ public class MysqlConn {
 		return -1;
 	}
 
-	// Updates the player statistics for the game session
+	
+	/**
+	 * <p><b> Updates the player statistics for the game session for when the game is completed </b></p>
+	 * @param id (The game ID)
+	 * @param playerStats (The player statistics for the game session)
+	 * @param playerNames
+	 * @return true if it worked
+	 */
 	public boolean updateGameInfo(int id, HashMap<String, ArrayList<String>> playerStats,
 			ArrayList<String> playerNames) {
 		try {
@@ -137,6 +163,40 @@ public class MysqlConn {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 			return false;
+		}
+	}
+
+	/**
+	 * <p><b> Gets all the game sessions that have been created from the database and displays it </b></p>
+	 */
+	public void displayAllGames() {
+		try {
+			Statement statement = dbConn.createStatement();
+
+			String sql = "SELECT * FROM 2PlayerGames";
+
+			ResultSet result = statement.executeQuery(sql);
+
+			System.out.println("----------ALL 2 PLAYER GAME SESSIONS----------");
+			while (result.next()) {
+				int id = result.getInt(1);
+				int playerOneWpm = result.getInt("Player_One_WPM");
+				int playerOneAcc = result.getInt("Player_One_Accuracy");
+				int playerTwoWpm = result.getInt("Player_Two_WPM");
+				int playerTwoAcc = result.getInt("Player_Two_Accuracy");
+
+				String playerOneName = result.getString("Player_One_Name");
+				String playerTwoName = result.getString("Player_Two_Name");
+
+				System.out.println("|Game ID: " + id + " | " + "Player 1 Name: " + playerOneName + " | "
+						+ "Player Two Name: " + playerTwoName + " | " + " Player One WPM: " + playerOneWpm + " | "
+						+ "Player One Accuracy: " + playerOneAcc + "% | " + " Player Two WPM: " + playerTwoWpm + " | "
+						+ "Player Two Accuracy: " + playerTwoAcc + "%|");
+			}
+
+			System.out.println("----------------------------------------------");
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
 		}
 	}
 }
