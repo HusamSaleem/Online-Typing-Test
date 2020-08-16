@@ -6,11 +6,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 /**
- * <p><b> This is the database class where it handles the connectivity, as well as the saving/updating/getting information </b></p>
+ * <p>
+ * <b> This is the database class where it handles the connectivity, as well as
+ * the saving/updating/getting information </b>
+ * </p>
+ * 
  * @author Husam Saleem
  */
 public class MysqlConn {
@@ -25,7 +30,9 @@ public class MysqlConn {
 	}
 
 	/**
-	 * <p><b> Starts the connection from the server to the database </b></p>
+	 * <p>
+	 * <b> Starts the connection from the server to the database </b>
+	 * </p>
 	 */
 	private void startConnection() {
 		try {
@@ -41,7 +48,10 @@ public class MysqlConn {
 	}
 
 	/**
-	 * <p><b> This will get all the registered usernames from the database (Table: accounts) and display it </b></p>
+	 * <p>
+	 * <b> This will get all the registered usernames from the database (Table:
+	 * accounts) and display it </b>
+	 * </p>
 	 */
 	public void displayAccounts() {
 		try {
@@ -63,7 +73,10 @@ public class MysqlConn {
 	}
 
 	/**
-	 * <p><b> Tries to register a unique name into the database </b></p>
+	 * <p>
+	 * <b> Tries to register a unique name into the database </b>
+	 * </p>
+	 * 
 	 * @param user
 	 * @return true if it worked
 	 */
@@ -84,9 +97,52 @@ public class MysqlConn {
 		}
 	}
 
-	
 	/**
-	 * <p><b> This creates a new row (Table of 2PlayerGames) in the database for the new game session </b></p>
+	 * <p>
+	 * <b> This creates a new row (Table of 1PlayerGames) in the database for the
+	 * new game session </b>
+	 * </p>
+	 * 
+	 * @param player1Name
+	 * @return the Game ID of the created session
+	 */
+	public int createGameSess(String player1Name) {
+		try {
+			PreparedStatement statement = dbConn
+					.prepareStatement("INSERT INTO 1PlayerGames(Player_One_WPM, Player_One_Accuracy, Player_One_Name) "
+							+ "VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
+			statement.setInt(1, 0);
+			statement.setInt(2, 0);
+			statement.setString(3, player1Name);
+
+			int result = statement.executeUpdate();
+
+			ResultSet res = statement.getGeneratedKeys();
+
+			if (result == 1) {
+				if (res.next()) {
+					return res.getInt(1);
+				}
+			} else {
+				System.out.println("Couldn't create the game session");
+				return -1;
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+
+			return -1;
+		}
+		System.out.println("Couldn't create the game session");
+		return -1;
+	}
+
+	/**
+	 * <p>
+	 * <b> This creates a new row (Table of 2PlayerGames) in the database for the
+	 * new game session </b>
+	 * </p>
+	 * 
 	 * @param player1Name
 	 * @param player2Name
 	 * @return the Game ID of the created session
@@ -126,31 +182,48 @@ public class MysqlConn {
 		return -1;
 	}
 
-	
 	/**
-	 * <p><b> Updates the player statistics for the game session for when the game is completed </b></p>
+	 * <p><b> Updates the player statistics for the game session for when the game is completed (2 Player Games & 1 Player Games) </b></p>
 	 * @param id (The game ID)
 	 * @param playerStats (The player statistics for the game session)
 	 * @param playerNames
 	 * @return true if it worked
 	 */
-	public boolean updateGameInfo(int id, HashMap<String, ArrayList<String>> playerStats,
-			ArrayList<String> playerNames) {
+	public boolean updateGameInfo(int id, HashMap<String, ClientHandler> playerStats, int gameSize) {
 		try {
-			String sql = "UPDATE 2PlayerGames SET " + "Player_One_WPM = ?, " + "Player_Two_WPM = ?, "
-					+ "Player_One_Accuracy = ?, " + "Player_Two_Accuracy = ? " + "WHERE Game_ID = ?";
+			String sql = "";
+			if (gameSize == 2)
+				sql = "UPDATE 2PlayerGames SET " + "Player_One_WPM = ?, " + "Player_Two_WPM = ?, " + "Player_One_Accuracy = ?, " + "Player_Two_Accuracy = ? " + "WHERE Game_ID = ?";
+			else {
+				sql = "UPDATE 1PlayerGames SET " + "Player_One_WPM = ?, " + "Player_One_Accuracy = ?, " + "WHERE Game_ID = ?";
+			}
+			
 			PreparedStatement statement = dbConn.prepareStatement(sql);
-
-			// WPM
-			statement.setInt(1, (int) Math.round(Float.parseFloat(playerStats.get(playerNames.get(0)).get(0))));
-			statement.setInt(2, (int) Math.round(Float.parseFloat(playerStats.get(playerNames.get(1)).get(0))));
-
-			// Accuracy
-			statement.setInt(3, (int) Math.round(Float.parseFloat(playerStats.get(playerNames.get(0)).get(1))));
-			statement.setInt(4, (int) Math.round(Float.parseFloat(playerStats.get(playerNames.get(1)).get(1))));
-
-			// Game ID
-			statement.setInt(5, id);
+			
+			int[] columnNamesWPM = {1, 2};
+			int[] columnNamesAcc = {3, 4};
+			
+			Iterator<Entry<String, ClientHandler>> iter = playerStats.entrySet().iterator();
+			
+			int i = 0;
+			while (iter.hasNext()) {
+				Entry<String, ClientHandler> entry = iter.next();
+				
+				if (gameSize == 2) {
+					statement.setInt(columnNamesWPM[i], entry.getValue().getPlayerStats().getWpm());
+					statement.setInt(columnNamesAcc[i], entry.getValue().getPlayerStats().getAccuracy());
+				} else {
+					statement.setInt(1, entry.getValue().getPlayerStats().getWpm());
+					statement.setInt(2, entry.getValue().getPlayerStats().getAccuracy());
+				}
+				i++;
+			}
+			if (gameSize == 2) {
+				// Game ID
+				statement.setInt(5, id);
+			} else {
+				statement.setInt(3, id);
+			}
 
 			int result = statement.executeUpdate();
 
@@ -167,7 +240,10 @@ public class MysqlConn {
 	}
 
 	/**
-	 * <p><b> Gets all the game sessions that have been created from the database and displays it </b></p>
+	 * <p>
+	 * <b> Gets all the game sessions that have been created from the database and
+	 * displays it </b>
+	 * </p>
 	 */
 	public void displayAllGames() {
 		try {

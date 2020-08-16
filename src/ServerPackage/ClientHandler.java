@@ -7,7 +7,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * <p><b> Handles information sending and receiving by the client, and processes it </b></p>
+ * <p>
+ * <b> Handles information sending and receiving by the client, and processes it
+ * </b>
+ * </p>
+ * 
  * @author Husam Saleem
  */
 public class ClientHandler implements Runnable {
@@ -17,6 +21,8 @@ public class ClientHandler implements Runnable {
 	private int curGameID = -1;
 	private String playerName;
 	private boolean ready;
+
+	private Stats playerStats;
 
 	// These variables are for checking to see if the client is still connected.
 	private int retryConnections;
@@ -40,6 +46,8 @@ public class ClientHandler implements Runnable {
 		this.retryConnections = 0;
 		this.lastPinged = System.currentTimeMillis();
 
+		this.playerStats = new Stats();
+
 		try {
 			sendData("Process_ID: " + this.PROC_ID);
 		} catch (IOException e) {
@@ -58,7 +66,10 @@ public class ClientHandler implements Runnable {
 	}
 
 	/**
-	 * <p><b> Sends data to the client if the client is connected </b></p>
+	 * <p>
+	 * <b> Sends data to the client if the client is connected </b>
+	 * </p>
+	 * 
 	 * @param data, the string of data to be sent
 	 * @return
 	 * @throws IOException
@@ -78,7 +89,11 @@ public class ClientHandler implements Runnable {
 	}
 
 	/**
-	 * <p><b> Checks for incoming data through the socket connection from the client </b></p>
+	 * <p>
+	 * <b> Checks for incoming data through the socket connection from the client
+	 * </b>
+	 * </p>
+	 * 
 	 * @return a String[] array that contains all the data that the client sent
 	 * @throws IOException
 	 * @throws InterruptedException
@@ -114,7 +129,10 @@ public class ClientHandler implements Runnable {
 	}
 
 	/**
-	 * <p><b> Parses through the incoming data from the client and process it</b></p>
+	 * <p>
+	 * <b> Parses through the incoming data from the client and process it</b>
+	 * </p>
+	 * 
 	 * @throws IOException
 	 */
 	public void processData() throws IOException {
@@ -160,6 +178,11 @@ public class ClientHandler implements Runnable {
 
 					System.out.println(getName() + " has been added to the " + difficulty + " level queue");
 					sendData("Added to the queue");
+				} else if (d.contains("Join 1 player queue: ")) {
+					int difficulty = Integer.parseInt(d.substring(21).trim());
+					Server.mmService.startSoloSession(this, difficulty);
+
+					System.out.println(getName() + ": Has started a solo game session");
 				} else if (d.equals("Ready")) {
 					this.ready = true;
 
@@ -184,9 +207,11 @@ public class ClientHandler implements Runnable {
 		}
 	}
 
-	
 	/**
-	 * <p><b> Sends a JSON string to the client containing connection information (IE: Total Connections, etc...) </b></p>
+	 * <p>
+	 * <b> Sends a JSON string to the client containing connection information (IE:
+	 * Total Connections, etc...) </b>
+	 * </p>
 	 */
 	public void sendConnectionInfo() {
 		JSONObject obj = new JSONObject();
@@ -273,5 +298,13 @@ public class ClientHandler implements Runnable {
 
 	public void setTimeFinished(long timeFinished) {
 		this.timeFinished = timeFinished;
+	}
+
+	public Stats getPlayerStats() {
+		return this.playerStats;
+	}
+
+	public void setPlayerStats(Stats playerStats) {
+		this.playerStats = playerStats;
 	}
 }

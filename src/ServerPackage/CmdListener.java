@@ -189,7 +189,7 @@ public class CmdListener implements Runnable {
 
 			int id = entry.getValue().getGameId();
 			int timeLeft = entry.getValue().getTimeLeft();
-			ArrayList<String> names = entry.getValue().getPlayerNames();
+			String[] names = entry.getValue().getPlayerNames();
 
 			String nameStr = "";
 			for (String s : names)

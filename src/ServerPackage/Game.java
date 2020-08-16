@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Scanner;
@@ -25,11 +26,9 @@ public class Game {
 
 	private int id;
 	private final int difficulty;
+	private final int partySize;
 
 	private HashMap<String, ClientHandler> players;
-	// Array list, WPM = index 0, Accuracy = index 1
-	private HashMap<String, ArrayList<String>> playerStats;
-	private ArrayList<String> playerNames;
 
 	private ArrayList<String> wordList;
 	private String wordListAsString;
@@ -41,11 +40,9 @@ public class Game {
 	// In Seconds...
 	private int timeLeft;
 
-	public Game(ArrayList<ClientHandler> playerList, int difficulty) {
+	public Game(ArrayList<ClientHandler> playerList, int difficulty, int partySize) {
 		this.players = new HashMap<String, ClientHandler>();
-		this.playerStats = new HashMap<String, ArrayList<String>>();
-		this.playerNames = new ArrayList<String>();
-
+		this.partySize = partySize;
 		setMaps(playerList);
 
 		this.difficulty = difficulty;
@@ -55,20 +52,29 @@ public class Game {
 		this.isFinished = false;
 		this.gameStarted = false;
 		this.timeLeft = TIME_PER_GAME;
-
-		this.id = Server.db.createGameSess(playerList.get(0).getName(), playerList.get(1).getName());
+		
+		if (partySize == 1) {
+			//1 Player Game
+			this.id = Server.db.createGameSess(playerList.get(0).getName());
+		} else {
+			// 2 Player game
+			this.id = Server.db.createGameSess(playerList.get(0).getName(), playerList.get(1).getName());
+		}
 
 		if (this.id != -1) {
-			System.out.println("Game ID: " + this.id + " Successfully created the game session... Players: {"
-					+ playerList.get(0).getName() + ", " + playerList.get(1).getName() + "}");
+			
+			if (partySize == 2)
+				System.out.println("Game ID: " + this.id + " Successfully created the game session... Players: {" + playerList.get(0).getName() + ", " + playerList.get(1).getName() + "}");
+			else
+				System.out.println("Game ID: " + this.id + " Successfully created the game session... Players: {" + playerList.get(0).getName() + "}");
 
 			// 1 = Easy, 2 = Challenging, 3 = Insane
 			if (difficulty == 1) {
-				startGame("easyWords.txt", playerList.get(0).getName(), playerList.get(1).getName());
+				startGame("easyWords.txt");
 			} else if (difficulty == 2) {
-				startGame("challengeWords.txt", playerList.get(0).getName(), playerList.get(1).getName());
+				startGame("challengeWords.txt");
 			} else if (difficulty == 3) {
-				startGame("insane", playerList.get(0).getName(), playerList.get(1).getName());
+				startGame("insane");
 			}
 		} else {
 			System.out.println("Failed to create the game session");
@@ -84,14 +90,14 @@ public class Game {
 	 * @param player1Name
 	 * @param player2Name
 	 */
-	public void startGame(String fileName, String player1Name, String player2Name) {
+	public void startGame(String fileName) {
 		if (fileName.equals("insane")) {
 			generateInsanelyDifficultWordList();
 		} else {
 			readFromFile(fileName);
 		}
 
-		setPlayerGameIds(player1Name, player2Name);
+		setPlayerGameIds(getPlayerNames());
 		shuffleWords();
 		this.wordListAsString = getWordsAsString();
 		sendTimeDelay(TIME_DELAY_BEFORE_GAME_START);
@@ -108,27 +114,34 @@ public class Game {
 		System.out.println("Player size: " + playerList.size());
 		for (ClientHandler c : playerList) {
 			if (c != null) {
-				ArrayList<String> emptyList = new ArrayList<String>();
 				this.players.put(c.getName(), c);
-				this.playerStats.put(c.getName(), emptyList);
-				this.playerNames.add(c.getName());
 			}
 		}
 	}
 
 	/**
-	 * <p><b> Sets the game ids of the game session for players </b></p>
+	 * <p>
+	 * <b> Sets the game ids of the game session for players </b>
+	 * </p>
+	 * 
 	 * @param player1Name
 	 * @param player2Name
 	 */
-	private void setPlayerGameIds(String player1Name, String player2Name) {
-		players.get(player1Name).setCurGameID(this.id);
-		players.get(player2Name).setCurGameID(this.id);
+	private void setPlayerGameIds(String[] names) {
+		for (String s : names) {
+			players.get(s).setCurGameID(this.id);
+		}
 	}
 
 	/**
-	 * <p><b> Decreases the game timer and also checks to see if it has reached the end </b></p>
-	 * <p><b> If it reached the end, it will update the game session's data in the database and reset the clients info regarding this game </b></p> 
+	 * <p>
+	 * <b> Decreases the game timer and also checks to see if it has reached the end
+	 * </b>
+	 * </p>
+	 * <p>
+	 * <b> If it reached the end, it will update the game session's data in the
+	 * database and reset the clients info regarding this game </b>
+	 * </p>
 	 */
 	public void decreaseTimer() {
 		this.timeLeft--;
@@ -142,14 +155,19 @@ public class Game {
 	}
 
 	/**
-	 * <p><b> Updates the game session's data row with the player statistics results' </b></p>
+	 * <p>
+	 * <b> Updates the game session's data row with the player statistics results'
+	 * </b>
+	 * </p>
 	 */
 	private void updateDatabase() {
-		Server.db.updateGameInfo(this.id, this.playerStats, this.playerNames);
+		Server.db.updateGameInfo(this.id, this.players, this.getPartySize());
 	}
 
 	/**
-	 * <p><b> Reset some variables for each player </b></p>
+	 * <p>
+	 * <b> Reset some variables for each player </b>
+	 * </p>
 	 */
 	private void resetClientGameInfo() {
 		for (Entry<String, ClientHandler> c : players.entrySet()) {
@@ -163,9 +181,11 @@ public class Game {
 		}
 	}
 
-	
 	/**
-	 * <p><b> Sets a time delay before the game actually starts </b></p>
+	 * <p>
+	 * <b> Sets a time delay before the game actually starts </b>
+	 * </p>
+	 * 
 	 * @param time (SECONDS)
 	 */
 	public void sendTimeDelay(int time) {
@@ -179,7 +199,9 @@ public class Game {
 	}
 
 	/**
-	 * <p><b> Notifies all players that the game has started </b></p>
+	 * <p>
+	 * <b> Notifies all players that the game has started </b>
+	 * </p>
 	 */
 	public void notifyClientsGameStarted() {
 		sendWordList();
@@ -195,7 +217,9 @@ public class Game {
 	}
 
 	/**
-	 * <p><b> Sends the created word list to the players </b></p>
+	 * <p>
+	 * <b> Sends the created word list to the players </b>
+	 * </p>
 	 */
 	public void sendWordList() {
 		for (Entry<String, ClientHandler> c : this.players.entrySet()) {
@@ -208,7 +232,10 @@ public class Game {
 	}
 
 	/**
-	 * <p><b> A helper method to read from text files </b></p>
+	 * <p>
+	 * <b> A helper method to read from text files </b>
+	 * </p>
+	 * 
 	 * @param txtFile
 	 */
 	private void readFromFile(String txtFile) {
@@ -230,7 +257,9 @@ public class Game {
 	}
 
 	/**
-	 * <p><b> A helper method to shuffle the word list at random </b></p>
+	 * <p>
+	 * <b> A helper method to shuffle the word list at random </b>
+	 * </p>
 	 */
 	private void shuffleWords() {
 		Random rand = new Random();
@@ -247,7 +276,10 @@ public class Game {
 	}
 
 	/**
-	 * <p><b> Returns the word list as a string </b></p>
+	 * <p>
+	 * <b> Returns the word list as a string </b>
+	 * </p>
+	 * 
 	 * @return String
 	 */
 	public String getWordsAsString() {
@@ -265,9 +297,11 @@ public class Game {
 		result = result.trim();
 		return result;
 	}
-	
+
 	/**
-	 * <p><b> Generate the most difficult word list </b></p>
+	 * <p>
+	 * <b> Generate the most difficult word list </b>
+	 * </p>
 	 */
 	private void generateInsanelyDifficultWordList() {
 		wordList.clear();
@@ -312,47 +346,63 @@ public class Game {
 			wordList.add(word);
 		}
 	}
-	
+
 	/**
-	 * <p><b> Updates the clients info regarding their statistics from the game</b></p>
-	 * <p><b> Also sends a JSON string containing all player's statistics to all players </b></p>
+	 * <p>
+	 * <b> Updates the clients info regarding their statistics from the game</b>
+	 * </p>
+	 * <p>
+	 * <b> Also sends a JSON string containing all player's statistics to all
+	 * players </b>
+	 * </p>
 	 */
 	public void updateClientData() {
-		ClientHandler[] p = new ClientHandler[2];
-		int i = 0;
-		for (Entry<String, ClientHandler> c : players.entrySet()) {
-			if (!c.getValue().isConnected()) {
-				updateStats(c.getKey());
-				p[i] = c.getValue();
-			} else {
-				p[i] = null;
-			}
-			i++;
-		}
+		Iterator<Entry<String, ClientHandler>> iter = this.players.entrySet().iterator();
 
-		for (i = 0; i < p.length; i++) {
-			if (p[i] != null) {
+		String[] jsonStrings = new String[this.players.size()];
+
+		int i = 0;
+		while (iter.hasNext()) {
+			Entry<String, ClientHandler> entry = iter.next();
+
+			if (entry.getValue().isConnected()) {
+				updateStats(entry.getKey());
 				JSONObject obj = new JSONObject();
 
 				try {
-					obj.put("name", p[i].getName());
-					obj.put("WPM", getPlayerWPM(p[i].getName()));
-					obj.put("accuracy", getPlayerAccuracy(p[i].getName()));
+					obj.put("name", entry.getKey());
+					obj.put("WPM", getPlayerWPM(entry.getKey()));
+					obj.put("accuracy", getPlayerAccuracy(entry.getKey()));
 					obj.put("timeLeft", getTimeLeft());
 
-					String jsonText = obj.toString();
-
-					p[0].sendData("JSON DATA STATS: " + jsonText);
-					p[1].sendData("JSON DATA STATS: " + jsonText);
-				} catch (JSONException | IOException e) {
+					jsonStrings[i] = obj.toString();
+				} catch (JSONException e) {
 					e.printStackTrace();
 				}
 			}
 		}
+
+		iter = this.players.entrySet().iterator();
+
+		while (iter.hasNext()) {
+			Entry<String, ClientHandler> entry = iter.next();
+
+			for (String s : jsonStrings) {
+				if (entry.getValue().isConnected())
+					try {
+						entry.getValue().sendData("JSON DATA STATS: " + s);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+			}
+		}
 	}
-	
+
 	/**
-	 * <p><b> Update the statistics (WPM, Accuracy) of a certain player </b></p>
+	 * <p>
+	 * <b> Update the statistics (WPM, Accuracy) of a certain player </b>
+	 * </p>
+	 * 
 	 * @param playerName
 	 */
 	public void updateStats(String playerName) {
@@ -378,7 +428,7 @@ public class Game {
 
 			netWPM = Math.round(netWPM);
 
-			this.playerStats.get(playerName).add(0, Float.toString(netWPM));
+			this.players.get(playerName).getPlayerStats().setWpm(Float.toString(netWPM));
 		} else {
 			// Calculate the words per minute
 			float grossWPM = (userInput.length() / 5) / ((60 - timeLeft) / 60f);
@@ -390,20 +440,39 @@ public class Game {
 
 			netWPM = Math.round(netWPM);
 
-			this.playerStats.get(playerName).add(0, Float.toString(netWPM));
+			this.players.get(playerName).getPlayerStats().setWpm(Float.toString(netWPM));
 		}
 
 		float accuracyCalc = ((userInput.length() - wrongIndexCharCount) / (float) userInput.length()) * 100f;
 		accuracyCalc = Math.max(accuracyCalc, 0);
-
 		accuracyCalc = Math.round(accuracyCalc);
 
-		this.playerStats.get(playerName).add(1, Float.toString(accuracyCalc));
-
+		this.players.get(playerName).getPlayerStats().setAccuracy(Float.toString(accuracyCalc));
 	}
 
 	/**
-	 * <p><b> Checks to see if the players are ready </b></p>
+	 * @return a list of the player names in the game session
+	 */
+	public String[] getPlayerNames() {
+		Iterator<Entry<String, ClientHandler>> iter = this.players.entrySet().iterator();
+
+		String[] names = new String[this.players.size()];
+
+		int i = 0;
+		while (iter.hasNext()) {
+			Entry<String, ClientHandler> entry = iter.next();
+			names[i] = entry.getKey();
+			i++;
+		}
+
+		return names;
+	}
+
+	/**
+	 * <p>
+	 * <b> Checks to see if the players are ready </b>
+	 * </p>
+	 * 
 	 * @return
 	 */
 	public boolean playersAreReady() {
@@ -433,26 +502,18 @@ public class Game {
 	}
 
 	public String getPlayerWPM(String playerName) {
-		return playerStats.get(playerName).get(0);
+		return Integer.toString(this.players.get(playerName).getPlayerStats().getWpm());
 	}
 
 	public String getPlayerAccuracy(String playerName) {
-		return playerStats.get(playerName).get(1);
-	}
-
-	public void setPlayerWPM(String playerName, String wpm) {
-		playerStats.get(playerName).set(0, wpm);
-	}
-
-	public void setPlayerAccuracy(String playerName, String accuracy) {
-		playerStats.get(playerName).set(1, accuracy);
+		return Integer.toString(this.players.get(playerName).getPlayerStats().getAccuracy());
 	}
 
 	public boolean isGameDone() {
 		return this.isFinished;
 	}
 
-	public ArrayList<String> getPlayerNames() {
-		return this.playerNames;
+	public int getPartySize() {
+		return partySize;
 	}
 }

@@ -20,7 +20,7 @@ public class PingHandler implements Runnable {
 			while (iter.hasNext()) {
 				ClientHandler client = iter.next();
 
-				// If the client is not connected anymore - >close the connection
+				// If the client is not connected anymore -> close the connection
 				if (!client.isConnected()) {
 					System.out.println("Client has been removed: " + client.S.toString());
 					Server.mmService.removePlayerFromQueue(client);

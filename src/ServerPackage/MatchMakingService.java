@@ -68,7 +68,7 @@ public class MatchMakingService {
 			int inactivePlayerIndex = checkIfPlayersAreAlive(players);
 
 			if (inactivePlayerIndex == -1) {
-				Game game = new Game(players, difficulty);
+				Game game = new Game(players, difficulty, 2);
 				activeGameSessions.put(game.getGameId(), game);
 			} else {
 				if (inactivePlayerIndex == 0) {
@@ -80,6 +80,13 @@ public class MatchMakingService {
 				}
 			}
 		}
+	}
+	
+	public void startSoloSession(ClientHandler client, int difficulty) {
+		ArrayList<ClientHandler> cl = new ArrayList<ClientHandler>();
+		cl.add(client);
+		Game game = new Game(cl, difficulty, 1);
+		activeGameSessions.put(game.getGameId(), game);
 	}
 
 	/**
