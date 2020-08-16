@@ -269,6 +269,22 @@ public class MysqlConn {
 						+ "Player One Accuracy: " + playerOneAcc + "% | " + " Player Two WPM: " + playerTwoWpm + " | "
 						+ "Player Two Accuracy: " + playerTwoAcc + "%|");
 			}
+			System.out.println("----------------------------------------------");
+			
+			sql = "SELECT * FROM 1PlayerGames";
+
+			result = statement.executeQuery(sql);
+
+			System.out.println("----------ALL 1 PLAYER GAME SESSIONS----------");
+			while (result.next()) {
+				int id = result.getInt(1);
+				int playerOneWpm = result.getInt("Player_One_WPM");
+				int playerOneAcc = result.getInt("Player_One_Accuracy");
+
+				String playerOneName = result.getString("Player_One_Name");
+
+				System.out.println("|Game ID: " + id + " | " + "Player 1 Name: " + playerOneName + " | " + " Player One WPM: " + playerOneWpm + " | " + "Player One Accuracy: " + playerOneAcc);
+			}
 
 			System.out.println("----------------------------------------------");
 		} catch (SQLException e) {
