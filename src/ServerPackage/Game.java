@@ -425,8 +425,8 @@ public class Game {
 
 		if (finishedTyping) {
 			// Calculate the words per minute
-			float grossWPM = (userInput.length() / 5) / ((60 - players.get(playerName).getTimeFinished()) / 60f);
-			float errorRate = wrongIndexCharCount / ((60 - players.get(playerName).getTimeFinished()) / 60f);
+			float grossWPM = (userInput.length() / 5) / ((players.get(playerName).getTimeFinished()) / 60f);
+			float errorRate = wrongIndexCharCount / ((players.get(playerName).getTimeFinished()) / 60f);
 			float netWPM = grossWPM - errorRate;
 			
 			System.out.println("1 " + (60 - players.get(playerName).getTimeFinished()));
