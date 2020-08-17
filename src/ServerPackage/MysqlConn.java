@@ -189,13 +189,13 @@ public class MysqlConn {
 	 * @param playerNames
 	 * @return true if it worked
 	 */
-	public boolean updateGameInfo(int id, HashMap<String, ClientHandler> playerStats, int gameSize) {
+	public boolean updateGameInfo(int id, HashMap<String, ClientHandler> playerStats, int gameSize, int difficulty) {
 		try {
 			String sql = "";
 			if (gameSize == 2)
-				sql = "UPDATE 2PlayerGames SET " + "Player_One_WPM = ?, " + "Player_Two_WPM = ?, " + "Player_One_Accuracy = ?, " + "Player_Two_Accuracy = ? " + "WHERE Game_ID = ?";
+				sql = "UPDATE 2PlayerGames SET " + "Player_One_WPM = ?, " + "Player_Two_WPM = ?, " + "Player_One_Accuracy = ?, " + "Player_Two_Accuracy = ?, " + "Game_Difficulty = ? " + "WHERE Game_ID = ?";
 			else {
-				sql = "UPDATE 1PlayerGames SET " + "Player_One_WPM = ?, " + "Player_One_Accuracy = ? " + "WHERE Game_ID = ?";
+				sql = "UPDATE 1PlayerGames SET " + "Player_One_WPM = ?, " + "Player_One_Accuracy = ?, " + "Game_Difficulty = ? " + "WHERE Game_ID = ?";
 			}
 			
 			PreparedStatement statement = dbConn.prepareStatement(sql);
@@ -220,9 +220,11 @@ public class MysqlConn {
 			}
 			if (gameSize == 2) {
 				// Game ID
-				statement.setInt(5, id);
+				statement.setInt(6, id);
+				statement.setInt(5, difficulty);
 			} else {
-				statement.setInt(3, id);
+				statement.setInt(4, id);
+				statement.setInt(3, difficulty);
 			}
 
 			int result = statement.executeUpdate();
@@ -260,11 +262,12 @@ public class MysqlConn {
 				int playerOneAcc = result.getInt("Player_One_Accuracy");
 				int playerTwoWpm = result.getInt("Player_Two_WPM");
 				int playerTwoAcc = result.getInt("Player_Two_Accuracy");
+				int difficulty = result.getInt("Game_Difficulty");
 
 				String playerOneName = result.getString("Player_One_Name");
 				String playerTwoName = result.getString("Player_Two_Name");
 
-				System.out.println("|Game ID: " + id + " | " + "Player 1 Name: " + playerOneName + " | "
+				System.out.println("|Game ID: " + id + " | " + "Difficulty: " + difficulty + " | " + "Player 1 Name: " + playerOneName + " | "
 						+ "Player Two Name: " + playerTwoName + " | " + " Player One WPM: " + playerOneWpm + " | "
 						+ "Player One Accuracy: " + playerOneAcc + "% | " + " Player Two WPM: " + playerTwoWpm + " | "
 						+ "Player Two Accuracy: " + playerTwoAcc + "%|");
@@ -280,10 +283,11 @@ public class MysqlConn {
 				int id = result.getInt(1);
 				int playerOneWpm = result.getInt("Player_One_WPM");
 				int playerOneAcc = result.getInt("Player_One_Accuracy");
+				int difficulty = result.getInt("Game_Difficulty");
 
 				String playerOneName = result.getString("Player_One_Name");
 
-				System.out.println("|Game ID: " + id + " | " + "Player 1 Name: " + playerOneName + " | " + " Player One WPM: " + playerOneWpm + " | " + "Player One Accuracy: " + playerOneAcc);
+				System.out.println("|Game ID: " + id + " | " + "Difficulty: " + difficulty + " | " +  "Player 1 Name: " + playerOneName + " | " + " Player One WPM: " + playerOneWpm + " | " + "Player One Accuracy: " + playerOneAcc);
 			}
 
 			System.out.println("----------------------------------------------");

@@ -161,7 +161,7 @@ public class Game {
 	 * </p>
 	 */
 	private void updateDatabase() {
-		Server.db.updateGameInfo(this.id, this.players, this.getPartySize());
+		Server.db.updateGameInfo(this.id, this.players, this.getPartySize(), this.difficulty);
 	}
 
 	/**
