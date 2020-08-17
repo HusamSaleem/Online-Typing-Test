@@ -39,6 +39,8 @@ public class Game {
 
 	// In Seconds...
 	private int timeLeft;
+	
+	private long gameStartedAtTime;
 
 	public Game(ArrayList<ClientHandler> playerList, int difficulty, int partySize) {
 		this.players = new HashMap<String, ClientHandler>();
@@ -206,6 +208,7 @@ public class Game {
 	 */
 	public void notifyClientsGameStarted() {
 		sendWordList();
+		this.gameStartedAtTime = System.currentTimeMillis() / 1000;
 		for (Entry<String, ClientHandler> c : players.entrySet()) {
 			try {
 				c.getValue().sendData("Game Started");
@@ -422,8 +425,8 @@ public class Game {
 
 		if (finishedTyping) {
 			// Calculate the words per minute
-			float grossWPM = (userInput.length() / 5) / ((60 - players.get(playerName).getTimeFinished()) / 60f);
-			float errorRate = wrongIndexCharCount / ((60 - players.get(playerName).getTimeFinished()) / 60f);
+			float grossWPM = (userInput.length() / 5) / ((this.gameStartedAtTime - players.get(playerName).getTimeFinished()) / 60f);
+			float errorRate = wrongIndexCharCount / ((this.gameStartedAtTime - players.get(playerName).getTimeFinished()) / 60f);
 			float netWPM = grossWPM - errorRate;
 
 			if (netWPM < 0)
