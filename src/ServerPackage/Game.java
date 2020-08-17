@@ -479,7 +479,6 @@ public class Game {
 	public boolean playersAreReady() {
 		for (Entry<String, ClientHandler> c : this.players.entrySet()) {
 			if (!c.getValue().isReady()) {
-				System.out.println("Player: " + c.getKey() + " is not ready yet");
 				return false;
 			}
 		}
