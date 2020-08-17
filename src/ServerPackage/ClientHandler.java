@@ -17,6 +17,7 @@ import org.json.JSONObject;
 public class ClientHandler implements Runnable {
 	public final Socket S;
 	public final String PROC_ID;
+	public int playerID;
 
 	private int curGameID = -1;
 	private String playerName;

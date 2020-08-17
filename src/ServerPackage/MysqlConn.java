@@ -200,23 +200,23 @@ public class MysqlConn {
 			
 			PreparedStatement statement = dbConn.prepareStatement(sql);
 			
-			int[] columnNamesWPM = {1, 2};
-			int[] columnNamesAcc = {3, 4};
-			
 			Iterator<Entry<String, ClientHandler>> iter = playerStats.entrySet().iterator();
 			
-			int i = 0;
 			while (iter.hasNext()) {
 				Entry<String, ClientHandler> entry = iter.next();
 				
 				if (gameSize == 2) {
-					statement.setInt(columnNamesWPM[i], entry.getValue().getPlayerStats().getWpm());
-					statement.setInt(columnNamesAcc[i], entry.getValue().getPlayerStats().getAccuracy());
+					if (entry.getValue().playerID == 1) {
+						statement.setInt(1, entry.getValue().getPlayerStats().getWpm());
+						statement.setInt(3, entry.getValue().getPlayerStats().getAccuracy());
+					} else if (entry.getValue().playerID == 2) {
+						statement.setInt(2, entry.getValue().getPlayerStats().getWpm());
+						statement.setInt(4, entry.getValue().getPlayerStats().getAccuracy());
+					}
 				} else {
 					statement.setInt(1, entry.getValue().getPlayerStats().getWpm());
 					statement.setInt(2, entry.getValue().getPlayerStats().getAccuracy());
 				}
-				i++;
 			}
 			if (gameSize == 2) {
 				// Game ID

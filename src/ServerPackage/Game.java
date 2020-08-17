@@ -46,6 +46,7 @@ public class Game {
 		this.players = new HashMap<String, ClientHandler>();
 		this.partySize = partySize;
 		setMaps(playerList);
+		setPlayerIDS();
 
 		this.difficulty = difficulty;
 		this.wordList = new ArrayList<String>();
@@ -60,7 +61,11 @@ public class Game {
 			this.id = Server.db.createGameSess(playerList.get(0).getName());
 		} else {
 			// 2 Player game
-			this.id = Server.db.createGameSess(playerList.get(0).getName(), playerList.get(1).getName());
+			
+			if (playerList.get(0).playerID == 1)
+				this.id = Server.db.createGameSess(playerList.get(0).getName(), playerList.get(1).getName());
+			else 
+				this.id = Server.db.createGameSess(playerList.get(1).getName(), playerList.get(0).getName());
 		}
 
 		if (this.id != -1) {
@@ -118,6 +123,22 @@ public class Game {
 			if (c != null) {
 				this.players.put(c.getName(), c);
 			}
+		}
+	}
+	
+	/**
+	 * <p><b> Sets the player IDS to the players </b></p>
+	 */
+	private void setPlayerIDS() {
+		Iterator<Entry<String, ClientHandler>> iter = this.players.entrySet().iterator();
+		
+		int i = 1;
+		while (iter.hasNext()) {
+			Entry<String, ClientHandler> entry = iter.next();
+			
+			entry.getValue().playerID = i;
+			
+			i++;
 		}
 	}
 
@@ -178,6 +199,7 @@ public class Game {
 				c.getValue().setCurGameID(-1);
 				c.getValue().setFinishedTyping(false);
 				c.getValue().setReady(false);
+				c.getValue().playerID = -1;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
