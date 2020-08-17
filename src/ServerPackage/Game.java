@@ -381,6 +381,8 @@ public class Game {
 					e.printStackTrace();
 				}
 			}
+			
+			i++;
 		}
 
 		iter = this.players.entrySet().iterator();
