@@ -195,7 +195,7 @@ public class MysqlConn {
 			if (gameSize == 2)
 				sql = "UPDATE 2PlayerGames SET " + "Player_One_WPM = ?, " + "Player_Two_WPM = ?, " + "Player_One_Accuracy = ?, " + "Player_Two_Accuracy = ? " + "WHERE Game_ID = ?";
 			else {
-				sql = "UPDATE 1PlayerGames SET " + "Player_One_WPM = ?, " + "Player_One_Accuracy = ?, " + "WHERE Game_ID = ?";
+				sql = "UPDATE 1PlayerGames SET " + "Player_One_WPM = ?, " + "Player_One_Accuracy = ? " + "WHERE Game_ID = ?";
 			}
 			
 			PreparedStatement statement = dbConn.prepareStatement(sql);
