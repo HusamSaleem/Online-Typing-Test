@@ -202,7 +202,7 @@ public class ClientHandler implements Runnable {
 
 				} else if (d.equals("Word List Finished")) {
 					this.finishedTyping = true;
-					this.timeFinished = System.currentTimeMillis() / 1000;
+					this.timeFinished = Server.mmService.activeGameSessions.get(this.curGameID).getTimeLeft();
 				}
 			}
 		}
