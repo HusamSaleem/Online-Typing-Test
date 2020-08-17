@@ -181,7 +181,8 @@ public class ClientHandler implements Runnable {
 				} else if (d.contains("Join 1 player queue: ")) {
 					int difficulty = Integer.parseInt(d.substring(21).trim());
 					Server.mmService.startSoloSession(this, difficulty);
-
+					
+					sendData("Added to the solo queue");
 					System.out.println(getName() + ": Has started a solo game session");
 				} else if (d.equals("Ready")) {
 					this.ready = true;
