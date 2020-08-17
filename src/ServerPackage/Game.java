@@ -175,6 +175,7 @@ public class Game {
 				c.getValue().sendData("Game Completed");
 				c.getValue().setCurGameID(-1);
 				c.getValue().setFinishedTyping(false);
+				c.getValue().setReady(false);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
