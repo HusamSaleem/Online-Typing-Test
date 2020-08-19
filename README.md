@@ -9,24 +9,12 @@ Well this repository includes both the client (Made in Unity) and server side an
 1. You must have Mysql installed already before continuing, there are many tutorials out there for this
 2. Create a user for your Mysql
 3. Create a database in Mysql, then create three tables (I will provide the SQL here)
-  a. The first table: "CREATE TABLE 1PlayerGames (
-  Game_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  Player_One_WPM SMALLINT,
-  Player_One_Accuracy SMALLINT,
-  Player_One_Name VARCHAR(255),
-  Game_Difficulty SMALLINT
-);"
-b. The second table: "CREATE TABLE 2PlayerGames (
-  Game_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  Player_One_WPM SMALLINT,
-  Player_One_Accuracy SMALLINT,
-  Player_One_Name VARCHAR(255),
-  Player_Two_WPM SMALLINT,
-  Player_Two_Accuracy SMALLINT,
-  Player_Two_Name VARCHAR(255),
-  Game_Difficulty SMALLINT
-);"
+  a. The first table: "CREATE TABLE 1PlayerGames (Game_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, Player_One_WPM SMALLINT, Player_One_Accuracy SMALLINT, Player_One_Name VARCHAR(255), Game_Difficulty SMALLINT);"
+  
+b. The second table: "CREATE TABLE 2PlayerGames ( Game_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, Player_One_WPM SMALLINT, Player_One_Accuracy SMALLINT, Player_One_Name VARCHAR(255), Player_Two_WPM SMALLINT,Player_Two_Accuracy SMALLINT,Player_Two_Name VARCHAR(255), Game_Difficulty SMALLINT);"
+
 c. The third table: "CREATE TABLE accounts (ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, Name VARCHAR(255));"
+
 4. Go to the MysqlConn.java file and chane the "Username", "Password", and the "Database name" strings to your information so it can connect to your database.
 # *OPTIONAL* You can change the port that the server will listen on in the Server.java file. OR you can just leave it at default (5014)
 
