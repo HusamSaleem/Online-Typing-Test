@@ -25,7 +25,7 @@ public class ClientHandler implements Runnable {
 
 	private Stats playerStats; 
 
-	// These variables are for checking to see if the client is still connected.
+	// These variables are for checking to see if the client is still connected. 
 	private int retryConnections;
 	private boolean isConnected;
 	private long lastPinged;
