@@ -19,6 +19,7 @@ public class Server {
 	private int proc_ID_Counter = 1;
 
 	public static ExecutorService threadPool;
+	private static final int POOL_SIZE = 25;
 
 	public static MysqlConn db;
 	public static MatchMakingService mmService;
@@ -31,7 +32,7 @@ public class Server {
 	public static void main(String[] args) throws IOException {
 		db = new MysqlConn();
 		mmService = new MatchMakingService();
-		Server server = new Server(port, 25);
+		Server server = new Server(port, POOL_SIZE);
 		server.start();
 
 		// Close all sockets when java program is terminated

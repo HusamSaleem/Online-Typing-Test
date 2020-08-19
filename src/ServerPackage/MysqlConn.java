@@ -21,9 +21,11 @@ import java.util.Map.Entry;
 public class MysqlConn {
 	Connection dbConn = null;
 
-	private String url = "jdbc:mysql://localhost:3306/TypingTestDb?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
-	private String username = "PotatoAdmin";
-	private String password = "Popakon123!";
+	// CHANGE ME
+	private String dbName = "DATABASENAME";
+	private String url = "jdbc:mysql://localhost:3306/"+ dbName + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+	private String username = "USER";
+	private String password = "PASSWORD";
 
 	public MysqlConn() {
 		startConnection();
