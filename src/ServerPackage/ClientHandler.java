@@ -23,7 +23,7 @@ public class ClientHandler implements Runnable {
 	private String playerName;
 	private boolean ready;
 
-	private Stats playerStats;
+	private Stats playerStats; 
 
 	// These variables are for checking to see if the client is still connected.
 	private int retryConnections;
