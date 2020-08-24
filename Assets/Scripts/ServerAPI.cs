@@ -206,7 +206,7 @@ public class ServerAPI : MonoBehaviour
         //SendData("Register Username: Testing12345");
 
         listenThread = new Thread(ListenForData);
-        //listenThread.IsBackground = true;
+        listenThread.IsBackground = true;
         listenThread.Start();
     }
 
