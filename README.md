@@ -21,7 +21,7 @@ Well this repository includes both the client (Made in Unity) and server side an
 
 # How to setup the Client
 0. Import the Unity folder from the client branch
-# *OPTIONAL* If you changed the server port listener, then you must do so as well in this. The port number can be found in the ServerAPI class
+# *OPTIONAL* If you changed the server port listener, then you must change the client port as well. The port number can be found in the ServerAPI class
 
 # How to run the server
 -If you are running the server in an IDE, then it should be as easy as pressing the run button.
